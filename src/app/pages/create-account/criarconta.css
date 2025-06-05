@@ -1,78 +1,36 @@
+/* Estilos personalizados para o projeto Forge Blog */
+
+/* Font Inter é padrão no Tailwind, mas caso queira garantir ou usar localmente */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  font-family: 'Inter', sans-serif;
+  /* Garante que o conteúdo não seja cortado pelo header fixo */
+  /* O padding-top no hero-bg da landing page já faz um efeito semelhante, 
+     mas pode ser útil aqui dependendo do conteúdo acima do hero.
+     Para a página de login/criar conta, o flex layout do body deve tratar disto. */
 }
 
-.container {
-    background-color: #fff;
-    padding: 20px 25px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 320px;
-    margin-top: 20px;
+/* Ajuste para suavizar o scroll, se não for feito via JS */
+html {
+  scroll-behavior: smooth;
 }
 
-form h2 {
-    text-align: center;
-    color: #333;
+/* Estilo para a imagem de fundo da seção Hero (usado na Landing Page) */
+.hero-bg {
+  background-image: url('https://placehold.co/1920x1080/e0e7ff/3730a3?text=Campus+Inovador'); /* Substitua pela sua imagem */
+  background-size: cover;
+  background-position: center;
 }
 
-label {
-    display: block;
-    margin-top: 10px;
-    margin-bottom: 5px;
-    font-weight: bold;
-    font-size: 14px;
-    color: #333;
+/* Outros estilos globais ou específicos que não sejam Tailwind podem ser adicionados aqui. */
+/* Por exemplo: */
+/*
+.custom-button-variant {
+  background-color: #your-custom-color;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
 }
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="date"],
-select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 14px;
+.custom-button-variant:hover {
+  background-color: #your-custom-darker-color;
 }
-
-input[type="submit"] {
-    background-color: #716fd9;
-    color: white;
-    padding: 14px 20px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 15px;
-}
-
-input[type="submit"]:hover {
-    background-color: #5c5acb;
-}
-
-.login-link {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 14px;
-}
-
-a {
-    color: #716fd9;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
+*/

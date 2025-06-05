@@ -3,88 +3,362 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Postar Blog</title>
-  <link rel="stylesheet" href="post-blog.css" />
+  <title>Criar Novo Artigo - Forge Project</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <!-- Quill.js CSS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5;
+    }
+    .ql-editor {
+      min-height: 300px; /* Altura mínima para o editor */
+      background-color: white;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .ql-toolbar.ql-snow {
+      border-top-left-radius: 0.375rem; /* 6px */
+      border-top-right-radius: 0.375rem; /* 6px */
+      border-bottom: 0;
+      background-color: #f9fafb; /* bg-gray-50 */
+    }
+     .ql-container.ql-snow {
+      border-bottom-left-radius: 0.375rem; /* 6px */
+      border-bottom-right-radius: 0.375rem; /* 6px */
+    }
+    /* Custom scrollbar for better aesthetics */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c5c5c5;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a5a5a5;
+    }
+  </style>
 </head>
-<body>
-  <div class="container">
-    <button onclick="window.location.href='../dashboard.html'" style="margin-bottom: 20px;">Voltar para a página principal</button>
-    <h2 id="welcome">Bem-vindo!</h2>
-    <p id="info"></p>
-    <button id="logout">Sair</button>
+<body class="text-gray-800">
 
-    <hr />
+  <!-- Header Simplificado para a página de edição -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+      <a href="../main-page/main-page.html" class="text-xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i> Voltar ao Forge Project
+      </a>
+      <div class="flex items-center space-x-3">
+        <button id="saveDraftBtn" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-300">
+          Salvar Rascunho
+        </button>
+        <button id="publishBtn" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+          Publicar Artigo
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <h3>Criar novo post</h3>
-    <form id="form-post">
-      <input type="text" id="titulo" placeholder="Título do post" required />
-      <textarea id="conteudo" placeholder="Escreva seu conteúdo aqui..." required></textarea>
-      <button type="submit">Publicar</button>
-    </form>
+  <main class="container mx-auto px-2 sm:px-4 py-8">
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Coluna Principal: Editor e Título -->
+      <div class="col-span-12 lg:col-span-8">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <div class="mb-6">
+            <label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Título do Artigo</label>
+            <input type="text" id="postTitle" name="postTitle" placeholder="Insira um título impactante aqui..." class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-2xl font-semibold">
+          </div>
+
+          <div class="mb-6">
+            <label for="postSummary" class="block text-sm font-medium text-gray-700 mb-1">Resumo (Opcional)</label>
+            <textarea id="postSummary" name="postSummary" rows="3" placeholder="Um breve resumo que aparecerá nas listagens..." class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Conteúdo Principal</label>
+            <!-- Editor Quill.js será inserido aqui -->
+            <div id="editor-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna Lateral: Opções de Publicação -->
+      <aside class="col-span-12 lg:col-span-4 space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Opções de Publicação</h3>
+
+          <div class="mb-4">
+            <label for="postVisibility" class="block text-sm font-medium text-gray-700 mb-1">Visibilidade</label>
+            <select id="postVisibility" name="postVisibility" class="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-transparent">
+              <option value="public">Público</option>
+              <option value="private">Privado (Só para mim)</option>
+              <option value="connections">Apenas Conexões (Em breve)</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label for="postFeaturedImage" class="block text-sm font-medium text-gray-700 mb-1">URL da Imagem de Destaque</label>
+            <input type="url" id="postFeaturedImage" name="postFeaturedImage" placeholder="https://exemplo.com/imagem.jpg" class="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-transparent">
+            <img id="featuredImagePreview" src="https://placehold.co/300x200/e0e7ff/3730a3?text=Prévia+da+Imagem" alt="[Prévia da imagem de destaque]" class="mt-2 rounded-md w-full h-auto object-cover" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e7ff/3730a3?text=URL+Inválida';" >
+          </div>
+
+          <div class="mb-4">
+            <label for="postCategories" class="block text-sm font-medium text-gray-700 mb-1">Categorias/Tags (separadas por vírgula)</label>
+            <input type="text" id="postCategories" name="postCategories" placeholder="Ex: tecnologia, inovação, TCC" class="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Agendar Publicação (Em breve)</label>
+            <input type="datetime-local" id="postSchedule" name="postSchedule" class="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-transparent" disabled>
+            <p class="text-xs text-gray-500 mt-1">Deixe em branco para publicar imediatamente.</p>
+          </div>
+        </div>
+        <div id="userInfo" class="bg-white p-4 rounded-lg shadow text-sm text-gray-600">
+             <h2 id="welcome" class="font-semibold text-lg mb-1">Carregando usuário...</h2>
+             <p id="info" class="text-xs"></p>
+             <button id="logoutBtn" class="mt-3 w-full text-sm bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+                Sair (Logout)
+             </button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Mensagem de Feedback Flutuante -->
+  <div id="feedbackMessage" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl text-sm opacity-0 transition-opacity duration-300">
+    Mensagem de feedback!
   </div>
 
+
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, addDoc, serverTimestamp, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+    // Sua configuração do Firebase (substitua pelos seus dados se necessário)
+    // É importante que esta configuração seja a mesma usada em outras partes do seu projeto.
+    // Se você já tem o __firebase_config e __initial_auth_token globalmente, use-os.
+    // Para este exemplo, estou usando a configuração fornecida no seu post-blog.html original.
     const firebaseConfig = {
-      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
-      authDomain: "forge-projectv2.firebaseapp.com",
-      projectId: "forge-projectv2",
-      storageBucket: "forge-projectv2.firebasestorage.app",
-      messagingSenderId: "277144452911",
-      appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+      apiKey: "YOUR_API_KEY", // SUBSTITUA PELA SUA API KEY
+      authDomain: "YOUR_AUTH_DOMAIN", // SUBSTITUA PELO SEU AUTH DOMAIN
+      projectId: "YOUR_PROJECT_ID", // SUBSTITUA PELO SEU PROJECT ID
+      storageBucket: "YOUR_STORAGE_BUCKET", // SUBSTITUA PELO SEU STORAGE BUCKET
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // SUBSTITUA PELO SEU MESSAGING SENDER ID
+      appId: "YOUR_APP_ID" // SUBSTITUA PELO SEU APP ID
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const welcome = document.getElementById("welcome");
-    const info = document.getElementById("info");
-
     let userData = null;
+    let quillEditor = null; // Variável para a instância do Quill
 
+    // Elementos da UI
+    const welcomeEl = document.getElementById("welcome");
+    const infoEl = document.getElementById("info");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const postTitleEl = document.getElementById("postTitle");
+    const postSummaryEl = document.getElementById("postSummary");
+    const postFeaturedImageEl = document.getElementById("postFeaturedImage");
+    const featuredImagePreviewEl = document.getElementById("featuredImagePreview");
+    const postCategoriesEl = document.getElementById("postCategories");
+    const postVisibilityEl = document.getElementById("postVisibility");
+    const publishBtn = document.getElementById("publishBtn");
+    const saveDraftBtn = document.getElementById("saveDraftBtn"); // Botão de rascunho
+    const feedbackMessageEl = document.getElementById("feedbackMessage");
+
+
+    // Inicializar Quill Editor
+    function initializeQuill() {
+      quillEditor = new Quill('#editor-container', {
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'script': 'sub'}, { 'script': 'super' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            [{ 'align': [] }],
+            ['link', 'image', 'video', 'blockquote', 'code-block'],
+            ['clean']
+          ]
+        },
+        placeholder: 'Comece a escrever seu artigo incrível aqui...',
+        theme: 'snow' // 'snow' or 'bubble'
+      });
+    }
+
+    // Atualizar prévia da imagem de destaque
+    if (postFeaturedImageEl && featuredImagePreviewEl) {
+        postFeaturedImageEl.addEventListener('input', () => {
+            const url = postFeaturedImageEl.value;
+            if (url) {
+                featuredImagePreviewEl.src = url;
+            } else {
+                featuredImagePreviewEl.src = 'https://placehold.co/300x200/e0e7ff/3730a3?text=Prévia+da+Imagem';
+            }
+        });
+    }
+
+
+    // Função para mostrar feedback
+    function showFeedback(message, isError = false) {
+        feedbackMessageEl.textContent = message;
+        feedbackMessageEl.classList.remove('bg-green-500', 'bg-red-500');
+        if (isError) {
+            feedbackMessageEl.classList.add('bg-red-500');
+        } else {
+            feedbackMessageEl.classList.add('bg-green-500');
+        }
+        feedbackMessageEl.classList.remove('opacity-0');
+        setTimeout(() => {
+            feedbackMessageEl.classList.add('opacity-0');
+        }, 3000);
+    }
+
+
+    // Autenticação e dados do usuário
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const uid = user.uid;
-        const docSnap = await getDoc(doc(db, "usuarios", uid));
-
-        if (docSnap.exists()) {
-          userData = docSnap.data();
-          welcome.textContent = `Bem-vindo(a), ${userData.nome}!`;
-          info.textContent = `Curso: ${userData.curso} | Universidade: ${userData.universidade}`;
+        try {
+          const docSnap = await getDoc(doc(db, "usuarios", uid)); // Assumindo que sua coleção de usuários se chama 'usuarios'
+          if (docSnap.exists()) {
+            userData = docSnap.data();
+            if (welcomeEl) welcomeEl.textContent = `Olá, ${userData.nome || 'Usuário'}!`;
+            if (infoEl) infoEl.textContent = `Curso: ${userData.curso || 'N/A'} | Universidade: ${userData.universidade || 'N/A'}`;
+          } else {
+             if (welcomeEl) welcomeEl.textContent = "Bem-vindo(a)!";
+             if (infoEl) infoEl.textContent = "Complete seu perfil para uma melhor experiência.";
+             console.warn("Documento do usuário não encontrado no Firestore.");
+          }
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+            if (welcomeEl) welcomeEl.textContent = "Erro ao carregar dados.";
         }
       } else {
-        window.location.href = "../login/login.html";
+        // Redirecionar para login se não estiver autenticado
+        // window.location.href = "../login/login.html"; // Ajuste o caminho conforme necessário
+        console.log("Usuário não autenticado. Redirecionamento desabilitado para desenvolvimento local.");
+        if (welcomeEl) welcomeEl.textContent = "Você não está logado.";
+        // Simular dados de usuário para desenvolvimento se necessário
+        userData = { nome: "Usuário Teste", curso: "Ciência da Computação", universidade: "Universidade Teste" };
       }
     });
 
-    document.getElementById("logout").addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "../login/login.html";
-      });
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          signOut(auth).then(() => {
+            showFeedback("Logout realizado com sucesso!");
+            setTimeout(() => {
+                // window.location.href = "../login/login.html"; // Ajuste o caminho
+            }, 1500);
+          }).catch((error) => {
+            console.error("Erro no logout:", error);
+            showFeedback("Erro ao fazer logout.", true);
+          });
+        });
+    }
+
+
+    // Lógica de Publicar Artigo
+    async function handlePublish(isDraft = false) {
+      if (!userData) {
+        showFeedback("Você precisa estar logado para publicar.", true);
+        return;
+      }
+      if (!quillEditor) {
+        showFeedback("Editor não inicializado.", true);
+        return;
+      }
+
+      const title = postTitleEl.value.trim();
+      const contentHTML = quillEditor.root.innerHTML; // Pega o conteúdo como HTML
+      const contentText = quillEditor.getText(); // Pega o conteúdo como texto puro (para resumo, se necessário)
+      const summary = postSummaryEl.value.trim();
+      const featuredImage = postFeaturedImageEl.value.trim();
+      const categories = postCategoriesEl.value.split(',').map(cat => cat.trim()).filter(cat => cat);
+      const visibility = postVisibilityEl.value;
+      const status = isDraft ? "draft" : "published";
+
+      if (!title) {
+        showFeedback("O título do artigo é obrigatório.", true);
+        postTitleEl.focus();
+        return;
+      }
+      if (contentText.trim().length < 20 && !isDraft) { // Validação mínima de conteúdo para publicar
+        showFeedback("O conteúdo do artigo parece muito curto.", true);
+        quillEditor.focus();
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "posts"), { // Assumindo que sua coleção de posts se chama 'posts'
+          title,
+          summary: summary || contentText.substring(0, 150) + (contentText.length > 150 ? "..." : ""), // Auto-gera resumo se vazio
+          contentHTML, // Salva o HTML do Quill
+          featuredImage: featuredImage || null,
+          categories,
+          visibility,
+          authorName: userData.nome,
+          authorCourse: userData.curso,
+          authorUniversity: userData.universidade,
+          authorId: auth.currentUser ? auth.currentUser.uid : null, // Salva o ID do autor
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          status: status, // 'published' ou 'draft'
+          // Outros campos como likes, comments podem ser inicializados aqui se necessário
+          likeCount: 0,
+          commentCount: 0,
+        });
+
+        showFeedback(isDraft ? "Rascunho salvo com sucesso!" : "Artigo publicado com sucesso!");
+        if (!isDraft) {
+            // Limpar campos após publicação (opcional)
+            postTitleEl.value = '';
+            postSummaryEl.value = '';
+            quillEditor.setText('');
+            postFeaturedImageEl.value = '';
+            featuredImagePreviewEl.src = 'https://placehold.co/300x200/e0e7ff/3730a3?text=Prévia+da+Imagem';
+            postCategoriesEl.value = '';
+        }
+
+      } catch (error) {
+        console.error("Erro ao salvar o artigo: ", error);
+        showFeedback("Erro ao salvar o artigo. Tente novamente.", true);
+      }
+    }
+
+    if (publishBtn) {
+        publishBtn.addEventListener("click", () => handlePublish(false));
+    }
+    if (saveDraftBtn) {
+        saveDraftBtn.addEventListener("click", () => handlePublish(true));
+    }
+
+
+    // Inicializar tudo quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeQuill();
+      // Outras inicializações, se houver
     });
 
-    document.getElementById("form-post").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const titulo = document.getElementById("titulo").value;
-      const conteudo = document.getElementById("conteudo").value;
-
-      await addDoc(collection(db, "posts"), {
-        titulo,
-        conteudo,
-        autor: userData.nome,
-        curso: userData.curso,
-        universidade: userData.universidade,
-        criadoEm: serverTimestamp()
-      });
-
-      alert("Post publicado com sucesso!");
-      document.getElementById("form-post").reset();
-    });
   </script>
+  <!-- Quill.js JS -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 </body>
 </html>

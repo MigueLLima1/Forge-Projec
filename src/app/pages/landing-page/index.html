@@ -2,63 +2,253 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Forge Blog - Página Inicial</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forge Blog - Conectando Ideias Universitárias</title>
+  <!-- Incluindo Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Favicon (substitua pelo seu) -->
+  <link rel="icon" href="https://placehold.co/32x32/6366f1/white?text=FB" type="image/png">
+  <!-- Incluindo AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Link para o seu ficheiro CSS externo -->
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <header>
-    <div class="logo">Forge Blog</div>
-    <nav>
-      <a href="index.html">Início</a>
-      <a href="/Forge-Project V2/src/app/pages/create-account/criarconta.html">Criar Conta</a>
-      <a href="/Forge-Project V2/src/app/pages/login/login.html">Login</a>
-    </nav>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md fixed w-full z-10">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="#" class="text-2xl font-bold text-indigo-600">Forge Blog</a>
+      <nav class="space-x-4">
+        <a href="#inicio" class="text-gray-600 hover:text-indigo-600 transition duration-300">Início</a>
+        <a href="#como-funciona" class="text-gray-600 hover:text-indigo-600 transition duration-300">Como Funciona</a>
+        <a href="#beneficios" class="text-gray-600 hover:text-indigo-600 transition duration-300">Benefícios</a>
+        <a href="/Forge-Project V2/src/app/pages/create-account/criarconta.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">Criar Conta</a>
+        <a href="/Forge-Project V2/src/app/pages/login/login.html" class="text-indigo-600 hover:text-indigo-700 font-semibold py-2 px-4 rounded-lg border border-indigo-600 hover:border-indigo-700 transition duration-300">Login</a>
+      </nav>
+    </div>
   </header>
 
   <main>
-    <section class="hero">
-      <h1>Bem-vindo ao Forge Blog</h1>
-      <p>Uma plataforma voltada para universitários compartilharem ideias, projetos e experiências através de postagens de blog.</p>
-      <a class="btn" href="/Forge-Project V2/src/app/pages/create-account/criarconta.html">Comece Agora</a>
+    <!-- Seção Hero -->
+    <section id="inicio" class="hero-bg pt-32 pb-20 text-white" data-aos="fade-in" data-aos-duration="1000">
+      <div class="container mx-auto px-6 text-center bg-black bg-opacity-50 py-12 rounded-xl">
+        <h1 class="text-5xl font-bold mb-6" data-aos="fade-down" data-aos-delay="200">Bem-vindo ao Forge Blog</h1>
+        <p class="text-xl mb-8 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="400">Sua plataforma universitária para compartilhar ideias, projetos e experiências inovadoras. Conecte-se, colabore e cresça!</p>
+        <a href="pages/criarconta/criarconta.html" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105" data-aos="zoom-in" data-aos-delay="600">Comece Agora e Inspire!</a>
+      </div>
     </section>
 
-    <section class="how-it-works">
-      <h2>Como Funciona?</h2>
-      <div class="steps">
-        <div class="step">
-          <h3>1. Crie sua Conta</h3>
-          <p>Registre-se com seus dados acadêmicos e escolha sua universidade e curso.</p>
-        </div>
-        <div class="step">
-          <h3>2. Faça Login</h3>
-          <p>Acesse com segurança utilizando sua conta cadastrada.</p>
-        </div>
-        <div class="step">
-          <h3>3. Publique</h3>
-          <p>Compartilhe posts no painel principal do Forge Blog.</p>
-        </div>
-        <div class="step">
-          <h3>4. Acesse seu Perfil</h3>
-          <p>Gerencie suas informações e foto de perfil com segurança.</p>
+    <!-- Seção Como Funciona -->
+    <section id="como-funciona" class="py-16 bg-white">
+      <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-700" data-aos="fade-up">Como Funciona?</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- Passo 1 -->
+          <div class="bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-center justify-center w-12 h-12 bg-indigo-500 text-white rounded-full mb-4 mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-center text-indigo-700">1. Crie sua Conta</h3>
+            <p class="text-gray-600 text-center">Registre-se rapidamente com seus dados acadêmicos e defina seu perfil na comunidade.</p>
+          </div>
+          <!-- Passo 2 -->
+          <div class="bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex items-center justify-center w-12 h-12 bg-indigo-500 text-white rounded-full mb-4 mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-center text-indigo-700">2. Explore e Conecte-se</h3>
+            <p class="text-gray-600 text-center">Navegue por posts, descubra projetos e conecte-se com outros universitários.</p>
+          </div>
+          <!-- Passo 3 -->
+          <div class="bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="300">
+             <div class="flex items-center justify-center w-12 h-12 bg-indigo-500 text-white rounded-full mb-4 mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-center text-indigo-700">3. Publique Suas Ideias</h3>
+            <p class="text-gray-600 text-center">Compartilhe seus conhecimentos, projetos e reflexões com a comunidade.</p>
+          </div>
+          <!-- Passo 4 -->
+          <div class="bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="400">
+            <div class="flex items-center justify-center w-12 h-12 bg-indigo-500 text-white rounded-full mb-4 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+               </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-center text-indigo-700">4. Gerencie seu Perfil</h3>
+            <p class="text-gray-600 text-center">Mantenha suas informações atualizadas e personalize sua presença online.</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="links">
-      <h2>Acesso Rápido</h2>
-      <ul>
-        <li><a href="/Forge-Project V2/src/app/pages/login/login.html">Login</a></li>
-        <li><a href="/Forge-Project V2/src/app/pages/create-account/criarconta.html">Criar Conta</a></li>
-        <li><a href="/Forge-Project V2/src/app/pages/main-page/main-page.html">Painel Principal</a></li>
-        <li><a href="/Forge-Project V2/src/app/pages/post-blog/post-blog.html">Publicar Novo Post</a></li>
-        <li><a href="/Forge-Project V2/src/app/pages/profile/profile.html">Perfil do Usuário</a></li>
-      </ul>
+    <!-- Seção Benefícios -->
+    <section id="beneficios" class="py-16 bg-indigo-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-700" data-aos="fade-up">Por que o Forge Blog?</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Benefício 1 -->
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="100">
+                    <img src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=Rede" alt="Ícone Conexão" class="mx-auto mb-4 rounded-full"/>
+                    <h3 class="text-xl font-semibold mb-2 text-indigo-700">Amplie sua Rede</h3>
+                    <p class="text-gray-600">Conecte-se com estudantes e pesquisadores de diversas áreas e universidades.</p>
+                </div>
+                <!-- Benefício 2 -->
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="200">
+                    <img src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=Portfólio" alt="Ícone Portfólio" class="mx-auto mb-4 rounded-full"/>
+                    <h3 class="text-xl font-semibold mb-2 text-indigo-700">Construa seu Portfólio</h3>
+                    <p class="text-gray-600">Publique seus projetos, artigos e ideias, criando um registro valioso da sua jornada.</p>
+                </div>
+                <!-- Benefício 3 -->
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="300">
+                    <img src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=Inspiração" alt="Ícone Inspiração" class="mx-auto mb-4 rounded-full"/>
+                    <h3 class="text-xl font-semibold mb-2 text-indigo-700">Inspiração e Colaboração</h3>
+                    <p class="text-gray-600">Descubra projetos inovadores, inspire-se e encontre parceiros para suas iniciativas.</p>
+                </div>
+            </div>
+        </div>
     </section>
+
+    <!-- Seção de Posts em Destaque (Placeholder) -->
+    <section id="posts-destaque" class="py-16 bg-white">
+      <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-700" data-aos="fade-up">Posts em Destaque</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Post Card Exemplo 1 -->
+          <div class="bg-gray-100 rounded-lg shadow-lg overflow-hidden transform hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="100">
+            <img src="https://placehold.co/600x400/c7d2fe/3730a3?text=Post+1" alt="Imagem do Post" class="w-full h-48 object-cover">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2 text-indigo-700">Inteligência Artificial na Educação</h3>
+              <p class="text-gray-600 mb-4 text-sm">Uma análise sobre como a IA está transformando o aprendizado universitário...</p>
+              <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold">Leia mais &rarr;</a>
+            </div>
+          </div>
+          <!-- Post Card Exemplo 2 -->
+          <div class="bg-gray-100 rounded-lg shadow-lg overflow-hidden transform hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="200">
+            <img src="https://placehold.co/600x400/c7d2fe/3730a3?text=Post+2" alt="Imagem do Post" class="w-full h-48 object-cover">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2 text-indigo-700">Projetos Sustentáveis no Campus</h3>
+              <p class="text-gray-600 mb-4 text-sm">Iniciativas verdes que estão fazendo a diferença na nossa comunidade acadêmica...</p>
+              <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold">Leia mais &rarr;</a>
+            </div>
+          </div>
+          <!-- Post Card Exemplo 3 -->
+          <div class="bg-gray-100 rounded-lg shadow-lg overflow-hidden transform hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="300">
+            <img src="https://placehold.co/600x400/c7d2fe/3730a3?text=Post+3" alt="Imagem do Post" class="w-full h-48 object-cover">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2 text-indigo-700">Desenvolvimento de Carreira Pós-Universidade</h3>
+              <p class="text-gray-600 mb-4 text-sm">Dicas e estratégias para se preparar para o mercado de trabalho...</p>
+              <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold">Leia mais &rarr;</a>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-12" data-aos="fade-up">
+            <a href="pages/main-page/main-page.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">Ver Todos os Posts</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Seção Depoimentos (Placeholder) -->
+    <section id="depoimentos" class="py-16 bg-indigo-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-700" data-aos="fade-up">O Que Nossos Usuários Dizem</h2>
+            <div class="grid md:grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Depoimento 1 -->
+                <div class="bg-white p-8 rounded-lg shadow-lg relative" data-aos="fade-right" data-aos-delay="100">
+                    <div class="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-indigo-500 text-white rounded-full flex items-center justify-center text-3xl font-serif">“</div>
+                    <p class="text-gray-600 italic mb-4">"O Forge Blog foi essencial para encontrar colegas para meu TCC. A plataforma é intuitiva e cheia de mentes criativas!"</p>
+                    <div class="flex items-center">
+                        <img src="https://placehold.co/50x50/a5b4fc/1e1b4b?text=A" alt="Foto do Usuário" class="w-12 h-12 rounded-full mr-4 border-2 border-indigo-200">
+                        <div>
+                            <p class="font-semibold text-indigo-700">Ana Silva</p>
+                            <p class="text-sm text-gray-500">Engenharia de Software, USP</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Depoimento 2 -->
+                <div class="bg-white p-8 rounded-lg shadow-lg relative" data-aos="fade-left" data-aos-delay="200">
+                    <div class="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-indigo-500 text-white rounded-full flex items-center justify-center text-3xl font-serif">“</div>
+                    <p class="text-gray-600 italic mb-4">"Finalmente um lugar para compartilhar minhas pesquisas e receber feedback construtivo. Recomendo!"</p>
+                     <div class="flex items-center">
+                        <img src="https://placehold.co/50x50/a5b4fc/1e1b4b?text=B" alt="Foto do Usuário" class="w-12 h-12 rounded-full mr-4 border-2 border-indigo-200">
+                        <div>
+                            <p class="font-semibold text-indigo-700">Bruno Costa</p>
+                            <p class="text-sm text-gray-500">Ciência da Computação, UFRJ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Acesso Rápido (Revisada) -->
+    <section id="acesso-rapido" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-700" data-aos="fade-up">Acesso Rápido</h2>
+            <div class="flex flex-wrap justify-center gap-4" data-aos="fade-up" data-aos-delay="100">
+                <a href="pages/login/login.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-300">Login</a>
+                <a href="pages/criarconta/criarconta.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-300">Criar Conta</a>
+                <a href="pages/main-page/main-page.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-300">Painel Principal</a>
+                <a href="pages/post-blog/post-blog.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-300">Publicar Novo Post</a>
+                <a href="pages/profile/profile.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-300">Perfil do Usuário</a>
+            </div>
+        </div>
+    </section>
+
   </main>
 
-  <footer>
-    <p>&copy; 2025 Forge Blog. Todos os direitos reservados.</p>
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-gray-300 py-12">
+    <div class="container mx-auto px-6 text-center">
+      <div class="mb-6">
+        <a href="#" class="text-3xl font-bold text-purple-400">Forge Blog</a>
+        <p class="mt-2 text-gray-400">Forjando o futuro, uma ideia de cada vez.</p>
+      </div>
+      <div class="flex justify-center space-x-6 mb-6">
+        <!-- Substitua '#' pelos links das suas redes sociais -->
+        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
+        </a>
+        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" /></svg>
+        </a>
+        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.94 6.657c.167.08.292.25.313.446l.009.113v4.78c0 .19-.07.37-.21.51l-.09.09a.707.707 0 01-.51-.21H7.04a.707.707 0 01-.51-.21l-.09-.09a.707.707 0 01-.21-.51v-4.78c0-.19.07.37.21-.51l.09-.09c.1-.1.23-.17.38-.2l.13-.01h9.88c.19 0 .37.07.51.21l.09.09zm-1.033 1.036H8.093v3.614h7.814V9.693zm-3.907 1.597a.707.707 0 00-1.002 0L7.4 13.047v.001c0 .055.045.1.1.1h8.996a.1.1 0 00.1-.1v-.001l-2.59-1.754a.707.707 0 00-1.002 0z" clip-rule="evenodd" /></svg>
+        </a>
+      </div>
+      <p>&copy; <span id="currentYear"></span> Forge Blog. Todos os direitos reservados.</p>
+      <p class="text-sm mt-2">Desenvolvido com <span class="text-red-500">&hearts;</span> e Tailwind CSS.</p>
+    </div>
   </footer>
+
+  <!-- Incluindo AOS JS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Script para o ano atual no footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Inicializa o AOS
+    AOS.init({
+        duration: 800, // Duração das animações em ms
+        once: false, // Se a animação deve acontecer apenas uma vez
+    });
+
+    // Opcional: Animação de scroll suave para links internos (se não usar CSS html {scroll-behavior: smooth;})
+    // document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    //   anchor.addEventListener('click', function (e) {
+    //     e.preventDefault();
+    //     document.querySelector(this.getAttribute('href')).scrollIntoView({
+    //       behavior: 'smooth'
+    //     });
+    //   });
+    // });
+  </script>
+
 </body>
 </html>

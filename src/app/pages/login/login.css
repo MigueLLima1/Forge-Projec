@@ -1,39 +1,35 @@
+/* Estilos personalizados para o projeto Forge Blog */
+
+/* A fonte Inter é padrão no Tailwind, mas pode garantir aqui ou usar localmente se preferir. */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  font-family: 'Inter', sans-serif;
+  /* O padding-top no hero-bg da landing page já trata de evitar que o header fixo cubra o conteúdo.
+     Para as páginas de login/criar conta, o layout flex do body geralmente gere bem esta situação. */
 }
-form {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
+
+/* Ajuste para suavizar o scroll na página, caso não seja feito via JavaScript. */
+html {
+  scroll-behavior: smooth;
 }
-input[type="text"],
-input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+
+/* Estilo para a imagem de fundo da secção Hero (usado na Landing Page) */
+.hero-bg {
+  background-image: url('https://placehold.co/1920x1080/e0e7ff/3730a3?text=Campus+Inovador'); /* Considere substituir por uma imagem sua. */
+  background-size: cover;
+  background-position: center;
 }
-input[type="submit"] {
-    background-color: #716fd9;
-    color: rgba(253, 253, 253, 0.747);
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
+
+/* Outros estilos globais ou específicos que não sejam facilmente alcançáveis
+   apenas com classes do Tailwind podem ser adicionados aqui. Por exemplo: */
+/*
+.custom-button-alternative {
+  background-color: #seuVerdePersonalizado;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
 }
-input[type="submit"]:hover {
-    background-color: #716fd9;
+.custom-button-alternative:hover {
+  background-color: #seuVerdeMaisEscuro;
 }
+*/

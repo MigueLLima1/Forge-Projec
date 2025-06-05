@@ -1,59 +1,294 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Forge Project - Home</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forge Project - Feed</title>
+  <!-- Incluindo Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-  <link href="../../../css/styles.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="main-page.css" rel="stylesheet" />
+  <!-- Incluindo AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5; /* Um cinza claro típico de redes sociais */
+    }
+    /* Para o scrollbar no feed, se necessário */
+    .feed-scroll {
+      max-height: calc(100vh - 200px); /* Ajustar conforme o header/footer */
+    }
+  </style>
 </head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-      <a class="navbar-brand" href="#!">Forge Project</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-        aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+<body class="text-gray-800">
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="#!">Sobre nós</a></li>
-          <li class="nav-item"><a class="nav-link" href="#!">Contato</a></li>
-          <li class="nav-item"><a class="nav-link active" href="#">Blog</a></li>
-          <li class="nav-item navbar-profile">
-            <a href="../profile/profile.html" class="nav-link"><i class="bi bi-person-circle profile-icon"></i></a>
-          </li>
-        </ul>
+  <!-- Header -->
+  <header class="bg-white shadow-md fixed w-full z-20">
+    <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+      <a href="#" class="text-2xl font-bold text-indigo-600">Forge Project</a>
+      <!-- Barra de Pesquisa -->
+      <div class="hidden sm:block relative w-1/3">
+        <input type="search" class="w-full py-2 px-4 pl-10 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Pesquisar no Forge...">
+        <div class="absolute top-0 left-0 mt-2 ml-3">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </div>
+      </div>
+      <nav class="hidden md:flex space-x-3 items-center">
+        <a href="#" class="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition duration-300" title="Página Inicial">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>
+        </a>
+        <a href="#" class="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition duration-300" title="Notificações">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+        </a>
+        <a href="./criar-conta.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Criar Conta</a>
+        <a href="./login.html" class="text-indigo-600 hover:text-indigo-700 font-semibold py-2 px-4 rounded-lg border border-indigo-600 text-sm hover:border-indigo-700 transition duration-300">Login</a>
+        <a href="../profile/profile.html" class="text-gray-600 hover:text-indigo-600 transition duration-300" title="Meu Perfil">
+          <img src="https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP" alt="[Avatar do Utilizador]" class="w-8 h-8 rounded-full border-2 border-transparent hover:border-indigo-500">
+        </a>
+      </nav>
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button id="mobile-menu-button" class="text-gray-600 hover:text-indigo-600 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
       </div>
     </div>
-  </nav>
-
-  <header class="py-5 bg-light border-bottom mb-4">
-    <div class="container">
-      <div class="text-center my-5">
-        <h1 class="fw-bolder">Bem-vindo ao Forge!</h1>
-        <p class="lead mb-0">Conectando mentes acadêmicas ao futuro profissional.</p>
-      </div>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white shadow-md">
+      <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Feed</a>
+      <!-- Explorar removido -->
+      <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Notificações</a>
+      <a href="../profile/profile.html" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Perfil</a>
+      <a href="./criar-conta.html" class="block px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Criar Conta</a>
+      <a href="./login.html" class="block px-6 py-3 text-indigo-600 hover:bg-indigo-50 font-semibold">Login</a>
     </div>
   </header>
 
-  <div class="container">
-    <!-- Conteúdo principal dos cards -->
-  </div>
+  <main class="pt-20 bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-2 sm:px-4 py-6">
+      <div class="grid grid-cols-12 gap-4">
 
-  <button class="floating-button" onclick="window.location.href='../post-blog/post-blog.html'">
-    <i class="bi bi-plus-lg"></i>
+        <!-- Coluna Esquerda: Navegação e Mini Perfil (Visível em telas maiores) -->
+        <aside class="hidden lg:block col-span-3 space-y-4">
+          <!-- Mini Perfil -->
+          <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-right">
+            <a href="../profile/profile.html" class="flex flex-col items-center text-center">
+              <img src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP" alt="[Foto de Perfil do Utilizador]" class="w-20 h-20 rounded-full mb-2 border-2 border-indigo-300">
+              <h3 class="font-semibold text-lg text-gray-800">Meu Utilizador</h3>
+              <p class="text-sm text-gray-500">@meuutilizador</p>
+            </a>
+            <div class="mt-4 text-sm text-gray-600 space-y-1">
+                <div class="flex justify-between"><span>A seguir:</span> <span class="font-semibold">150</span></div>
+                <div class="flex justify-between"><span>Seguidores:</span> <span class="font-semibold">320</span></div>
+            </div>
+          </div>
+
+          <!-- Navegação Principal -->
+          <nav class="bg-white p-4 rounded-lg shadow" data-aos="fade-right" data-aos-delay="100">
+            <ul class="space-y-1">
+              <li><a href="#" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md font-medium"><i class="fas fa-home fa-fw w-5"></i><span>Feed</span></a></li>
+              <!-- Explorar removido -->
+              <li><a href="#" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-bell fa-fw w-5"></i><span>Notificações</span><span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span></a></li>
+              <li><a href="#" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-envelope fa-fw w-5"></i><span>Mensagens</span></a></li>
+              <li><a href="#" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-bookmark fa-fw w-5"></i><span>Guardados</span></a></li>
+              <li><a href="../profile/profile.html" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-user-circle fa-fw w-5"></i><span>Meu Perfil</span></a></li>
+              <li><a href="#" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-cog fa-fw w-5"></i><span>Configurações</span></a></li>
+            </ul>
+          </nav>
+        </aside>
+
+        <!-- Coluna Central: Feed de Posts -->
+        <section class="col-span-12 lg:col-span-6 space-y-6">
+          <!-- Caixa de Criar Post/Artigo -->
+          <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-up">
+            <div class="flex items-start space-x-3 mb-3">
+              <img src="https://placehold.co/40x40/a5b4fc/1e1b4b?text=MP" alt="[O seu Avatar]" class="w-10 h-10 rounded-full">
+              <div class="w-full">
+                <input type="text" placeholder="Título do seu artigo..." class="w-full p-2 border-gray-200 rounded-md focus:ring-2 focus:ring-indigo-300 focus:border-transparent mb-2 font-semibold text-lg" id="postTitleQuick">
+                <textarea id="postContentQuick" class="w-full p-2 border-gray-200 rounded-md focus:ring-2 focus:ring-indigo-300 focus:border-transparent resize-none" rows="4" placeholder="Escreva o conteúdo do seu artigo aqui, Meu Utilizador..."></textarea>
+              </div>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+              <div class="flex space-x-2">
+                <button class="text-gray-500 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100" title="Adicionar Foto/Vídeo"><i class="fas fa-photo-video"></i></button>
+                <button class="text-gray-500 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100" title="Adicionar Tags"><i class="fas fa-tags"></i></button>
+                <button class="text-gray-500 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100" title="Sentimento/Atividade"><i class="fas fa-smile"></i></button>
+              </div>
+              <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg text-sm transition duration-300">Publicar Artigo</button>
+            </div>
+          </div>
+
+          <!-- Post/Artigo 1 -->
+          <article class="bg-white rounded-lg shadow" data-aos="fade-up" data-aos-delay="100">
+            <div class="p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-3">
+                  <img src="https://placehold.co/40x40/ffedd5/9a3412?text=JS" alt="[Avatar de João Silva]" class="w-10 h-10 rounded-full">
+                  <div>
+                    <a href="#" class="font-semibold text-gray-800 hover:underline">João Silva</a>
+                    <p class="text-xs text-gray-500">Há 2 horas</p>
+                  </div>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600 p-1 rounded-full"><i class="fas fa-ellipsis-h"></i></button>
+              </div>
+              <h2 class="text-xl font-bold text-gray-800 mb-2 hover:text-indigo-600 cursor-pointer">O Futuro da Inteligência Artificial na Educação</h2>
+              <p class="text-gray-700 mb-3 leading-relaxed">
+                Acabei de ler um estudo fascinante sobre como a Inteligência Artificial está preparada para revolucionar as salas de aula. Desde tutores virtuais personalizados até ferramentas analíticas que ajudam os educadores a identificar necessidades específicas dos alunos, as possibilidades são vastas. No entanto, também surgem questões éticas importantes sobre privacidade de dados e o risco de ampliar desigualdades existentes. Qual a sua opinião sobre isto? #IA #Educação #FuturoTech #DebateAcadémico
+              </p>
+              <img src="https://placehold.co/600x400/c7d2fe/3730a3?text=Artigo+sobre+IA" alt="[Imagem do post sobre IA]" class="rounded-lg w-full object-cover max-h-96 mb-3" onerror="this.onerror=null;this.src='https://placehold.co/600x400/ccc/969696?text=Erro+na+Imagem'">
+            </div>
+            <div class="px-4 py-2 border-t border-gray-100 flex justify-around">
+              <button class="flex items-center space-x-1 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 px-3 rounded-md transition duration-150 text-sm">
+                <i class="far fa-thumbs-up"></i> <span>Gosto (15)</span>
+              </button>
+              <button class="flex items-center space-x-1 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 px-3 rounded-md transition duration-150 text-sm">
+                <i class="far fa-comment-alt"></i> <span>Comentar (3)</span>
+              </button>
+              <button class="flex items-center space-x-1 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 px-3 rounded-md transition duration-150 text-sm">
+                <i class="fas fa-share-square"></i> <span>Partilhar</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- Post/Artigo 2 -->
+          <article class="bg-white rounded-lg shadow" data-aos="fade-up" data-aos-delay="150">
+            <div class="p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-3">
+                  <img src="https://placehold.co/40x40/d1fae5/059669?text=MA" alt="[Avatar de Maria Almeida]" class="w-10 h-10 rounded-full">
+                  <div>
+                    <a href="#" class="font-semibold text-gray-800 hover:underline">Maria Almeida</a>
+                    <p class="text-xs text-gray-500">Há 5 horas</p>
+                  </div>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600 p-1 rounded-full"><i class="fas fa-ellipsis-h"></i></button>
+              </div>
+              <h2 class="text-xl font-bold text-gray-800 mb-2 hover:text-indigo-600 cursor-pointer">Apresentando o meu TCC: Desenvolvimento Sustentável em Foco</h2>
+              <p class="text-gray-700 mb-3 leading-relaxed">
+                Estou muito animada para partilhar que apresentarei o meu Trabalho de Conclusão de Curso sobre práticas de desenvolvimento sustentável em comunidades urbanas na conferência académica da próxima semana! Foi uma jornada de muita pesquisa e aprendizagem. 🌿 Se alguém estiver a participar, adoraria conectar e trocar ideias! #TCC #Sustentabilidade #PesquisaCientífica #Conferência
+              </p>
+              <!-- Sem imagem neste post -->
+            </div>
+             <div class="px-4 py-2 border-t border-gray-100 flex justify-around">
+              <button class="flex items-center space-x-1 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 px-3 rounded-md transition duration-150 text-sm">
+                <i class="far fa-thumbs-up"></i> <span>Gosto (28)</span>
+              </button>
+              <button class="flex items-center space-x-1 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 px-3 rounded-md transition duration-150 text-sm">
+                <i class="far fa-comment-alt"></i> <span>Comentar (7)</span>
+              </button>
+              <button class="flex items-center space-x-1 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 px-3 rounded-md transition duration-150 text-sm">
+                <i class="fas fa-share-square"></i> <span>Partilhar</span>
+              </button>
+            </div>
+          </article>
+           <!-- Mais posts podem ser adicionados aqui -->
+
+        </section>
+
+        <!-- Coluna Direita: Sugestões e Tendências (Visível em telas maiores) -->
+        <aside class="hidden lg:block col-span-3 space-y-4">
+          <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-left">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Sugestões para Si</h3>
+            <ul class="space-y-3">
+              <li class="flex items-center space-x-3">
+                <img src="https://placehold.co/40x40/fee2e2/b91c1c?text=CP" alt="[Avatar de Carlos Pereira]" class="w-10 h-10 rounded-full">
+                <div>
+                  <a href="#" class="font-medium text-gray-700 hover:underline text-sm">Carlos Pereira</a>
+                  <p class="text-xs text-gray-500">Engenharia de Software</p>
+                </div>
+                <button class="ml-auto bg-indigo-100 text-indigo-600 hover:bg-indigo-200 text-xs font-semibold py-1 px-2 rounded-md">Seguir</button>
+              </li>
+              <li class="flex items-center space-x-3">
+                <img src="https://placehold.co/40x40/e0e7ff/3730a3?text=AS" alt="[Avatar de Ana Souza]" class="w-10 h-10 rounded-full">
+                <div>
+                  <a href="#" class="font-medium text-gray-700 hover:underline text-sm">Ana Souza</a>
+                  <p class="text-xs text-gray-500">Design Gráfico</p>
+                </div>
+                <button class="ml-auto bg-indigo-100 text-indigo-600 hover:bg-indigo-200 text-xs font-semibold py-1 px-2 rounded-md">Seguir</button>
+              </li>
+            </ul>
+            <a href="#" class="block text-center text-indigo-600 hover:underline mt-3 text-sm">Ver todas as sugestões</a>
+          </div>
+
+          <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-left" data-aos-delay="100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Tópicos em Alta</h3>
+            <ul class="space-y-1">
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#InovacaoAcademica</a> <span class="text-xs text-gray-400">(1.2k posts)</span></li>
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#VidaUniversitaria</a> <span class="text-xs text-gray-400">(870 posts)</span></li>
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#ForgeProjectIdeias</a> <span class="text-xs text-gray-400">(500 posts)</span></li>
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#CienciaDeDados</a> <span class="text-xs text-gray-400">(410 posts)</span></li>
+            </ul>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Botão Flutuante para Novo Post -->
+  <button onclick="window.location.href='../post-blog/post-blog.html'" title="Criar Novo Artigo"
+          class="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transition duration-300 z-10">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+    </svg>
   </button>
 
-  <footer class="py-5 bg-dark mt-5">
-    <div class="container">
-      <p class="m-0 text-center text-white">Copyright &copy; Forge Project 2024</p>
+  <!-- Footer: Menor e mais simples para um layout de app -->
+  <footer class="bg-white text-gray-500 py-6 border-t border-gray-200 mt-auto">
+    <div class="container mx-auto px-6 text-center">
+      <div class="flex justify-center space-x-4 mb-2">
+        <a href="#" class="hover:text-indigo-600 text-sm">Sobre</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Privacidade</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Termos</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Cookies</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Ajuda</a>
+      </div>
+      <p class="text-sm">&copy; <span id="currentYear"></span> Forge Project. Todos os direitos reservados.</p>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Incluindo AOS JS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Script para o ano atual no footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Inicializa o AOS
+    AOS.init({
+        duration: 600, 
+        once: true, 
+    });
+
+    // Script para menu mobile
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a'); // Seleciona todos os links
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (!mobileMenu.classList.contains('hidden')) {
+                    // Não fecha se for link externo, apenas se for navegação na mesma página (href="#")
+                    // Para este menu, como os links são para outras páginas ou seções principais,
+                    // o comportamento de fechar pode ser mantido ou ajustado conforme a navegação real.
+                    // Se os links levarem para outras páginas, o menu fechará com o carregamento da nova página.
+                     mobileMenu.classList.add('hidden'); 
+                }
+            });
+        });
+    }
+  </script>
+
 </body>
 </html>

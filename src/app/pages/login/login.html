@@ -2,56 +2,171 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="login.css">
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Forge Blog</title>
+  <!-- Incluindo Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Favicon (substitua pelo seu, igual ao da landing page) -->
+  <link rel="icon" href="https://placehold.co/32x32/6366f1/white?text=FB" type="image/png">
+  <!-- Incluindo AOS CSS (opcional para esta página) -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Link para o seu ficheiro CSS externo (o mesmo da landing page e criar conta) -->
+  <link rel="stylesheet" href="../login/login.css"> <!-- Ajuste o caminho se necessário -->
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
 
-<form id="login-form">
-  <h2>Login</h2>
-  <label for="email">Email:</label>
-  <input type="text" id="email" name="email" required>
+  <!-- Header Simplificado -->
+  <header class="bg-white shadow-md w-full z-10">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="../../index.html" class="text-2xl font-bold text-indigo-600">Forge Blog</a>
+      <a href="../landing-page/index.html" class="text-gray-600 hover:text-indigo-600 transition duration-300">Voltar ao Início</a>
+    </div>
+  </header>
 
-  <label for="password">Senha:</label>
-  <input type="password" id="password" name="password" required>
+  <!-- Conteúdo Principal -->
+  <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl">
+      <div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Acesse à sua conta!
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+          Bem-vindo de volta ao Forge Blog!
+        </p>
+      </div>
+      <form id="login-form" class="mt-8 space-y-6">
+        <input type="hidden" name="remember" value="true">
+        <div class="rounded-md shadow-sm -space-y-px">
+          <div>
+            <label for="email" class="sr-only">Endereço de email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required
+                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                   placeholder="Endereço de email">
+          </div>
+          <div>
+            <label for="password" class="sr-only">Senha</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                   placeholder="Senha">
+          </div>
+        </div>
 
-  <input type="submit" value="Login">
-  <p class="login-link">Ainda não tem uma conta? <a href="../create-account/criarconta.html">Criar conta</a>.</p>
-</form>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input id="remember-me" name="remember-me" type="checkbox"
+                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+            <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+              Lembrar-me
+            </label>
+          </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+          <div class="text-sm">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
+              Esqueceu-se da senha?
+            </a>
+          </div>
+        </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
-    authDomain: "forge-projectv2.firebaseapp.com",
-    projectId: "forge-projectv2",
-    storageBucket: "forge-projectv2.appspot.com",
-    messagingSenderId: "277144452911",
-    appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
-  };
+        <div>
+          <button type="submit"
+                  class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Entrar
+          </button>
+        </div>
+      </form>
+      <div class="text-sm text-center">
+        <p class="login-link text-gray-600">
+          Ainda não tem uma conta?
+          <a href="../criarconta/criarconta.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+            Criar conta
+          </a>
+        </p>
+      </div>
+    </div>
+  </main>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  <!-- Footer Simplificado -->
+  <footer class="bg-gray-800 text-gray-300 py-8 mt-auto">
+    <div class="container mx-auto px-6 text-center">
+      <p>&copy; <span id="currentYearFooterLogin"></span> Forge Blog. Todos os direitos reservados.</p>
+    </div>
+  </footer>
 
-  document.getElementById("login-form").addEventListener("submit", function(e) {
-    e.preventDefault(); // Impede envio tradicional do formulário
+  <!-- Script Firebase + Login (mesmo do seu ficheiro original) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("password").value;
+    // IMPORTANTE: Reveja as suas regras de segurança do Firebase.
+    // Considere usar variáveis de ambiente para a apiKey em produção.
+    const firebaseConfig = {
+      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg", // Exemplo, use a sua chave
+      authDomain: "forge-projectv2.firebaseapp.com",
+      projectId: "forge-projectv2",
+      storageBucket: "forge-projectv2.appspot.com", // Verifique se este é o correto para o seu projeto
+      messagingSenderId: "277144452911",
+      appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+    };
 
-    signInWithEmailAndPassword(auth, email, senha)
-      .then((userCredential) => {
-        // Redireciona para a página de perfil após login bem-sucedido
-        window.location.href = "../profile/profile.html";
-      })
-      .catch((error) => {
-        alert("Erro ao fazer login: " + error.message);
-      });
-  });
-</script>
+    let app, auth;
+    try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+    } catch (error) {
+        console.error("Erro ao inicializar Firebase:", error);
+        alert("Ocorreu um erro ao carregar a página. Tente novamente mais tarde.");
+    }
+    
+
+    const loginForm = document.getElementById("login-form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", function(e) {
+          e.preventDefault(); // Impede envio tradicional do formulário
+
+          const emailInput = document.getElementById("email");
+          const passwordInput = document.getElementById("password");
+
+          if (!emailInput || !passwordInput) {
+              console.error("Campos de email ou senha não encontrados.");
+              alert("Erro no formulário. Tente recarregar a página.");
+              return;
+          }
+
+          const email = emailInput.value;
+          const senha = passwordInput.value;
+
+          if (!auth) {
+            alert("Erro na configuração do sistema de autenticação. Tente novamente mais tarde.");
+            return;
+          }
+
+          signInWithEmailAndPassword(auth, email, senha)
+            .then((userCredential) => {
+              // Login bem-sucedido
+              // Redireciona para a página de perfil ou painel principal
+              // TODO: Atualize o caminho para a sua página principal após o login
+              window.location.href = "../main-page/main-page.html"; // Exemplo de redirecionamento
+            })
+            .catch((error) => {
+              console.error("Erro ao fazer login:", error);
+              // TODO: Substituir alert por uma mensagem de erro mais amigável e específica no formulário
+              // Ex: if(error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found')
+              alert("Erro ao fazer login: Email ou senha inválidos. Verifique os seus dados e tente novamente.");
+            });
+        });
+    } else {
+        console.error("Elemento login-form não encontrado.");
+    }
+
+    // Script para o ano atual no footer
+    const currentYearFooterLogin = document.getElementById('currentYearFooterLogin');
+    if (currentYearFooterLogin) {
+        currentYearFooterLogin.textContent = new Date().getFullYear();
+    }
+
+    // Inicializa o AOS (opcional)
+    // AOS.init();
+  </script>
 
 </body>
 </html>

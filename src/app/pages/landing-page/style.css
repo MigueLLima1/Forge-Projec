@@ -1,0 +1,120 @@
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f8;
+  color: #333;
+}
+
+header {
+  background-color: #716fd9;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header .logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+header nav a {
+  color: white;
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+  background: #e6e8ff;
+}
+
+.hero h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.2em;
+  margin-bottom: 30px;
+}
+
+.btn {
+  background-color: #716fd9;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.how-it-works {
+  padding: 50px 20px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.how-it-works h2 {
+  font-size: 2em;
+  margin-bottom: 40px;
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.step {
+  max-width: 250px;
+  background: #f8f9fc;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.step h3 {
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.links {
+  padding: 40px 20px;
+  background: #f0f1f5;
+  text-align: center;
+}
+
+.links h2 {
+  margin-bottom: 20px;
+}
+
+.links ul {
+  list-style: none;
+}
+
+.links li {
+  margin: 10px 0;
+}
+
+.links a {
+  color: #716fd9;
+  text-decoration: none;
+}
+
+footer {
+  background: #716fd9;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}

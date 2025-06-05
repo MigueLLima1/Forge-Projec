@@ -1,30 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="login.css">
-    <title>Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="login.css">
+  <title>Login</title>
 </head>
 <body>
 
-<form action="/submit" method="post">
-    <h2>Login</h2>
-    <label for="email">Email:</label>
-    <input type="text" id="email" name="email" required>
+<form id="login-form">
+  <h2>Login</h2>
+  <label for="email">Email:</label>
+  <input type="text" id="email" name="email" required>
 
-    <label for="password">Senha:</label>
-    <input type="password" id="password" name="password" required>
+  <label for="password">Senha:</label>
+  <input type="password" id="password" name="password" required>
 
-    <input type="submit" value="Login" id="btnRedirectPage">
-    <p class="login-link">Ainda não tem uma conta? <a href="../create-account/criarconta.html">Criar conta</a>.</p>
+  <input type="submit" value="Login">
+  <p class="login-link">Ainda não tem uma conta? <a href="../create-account/criarconta.html">Criar conta</a>.</p>
 </form>
 
-<script>
-    document.getElementById("btnRedirectPage").onclick = function()
-    {
-        window.location.href = "../index.html"
-    }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+    authDomain: "forge-projectv2.firebaseapp.com",
+    projectId: "forge-projectv2",
+    storageBucket: "forge-projectv2.appspot.com",
+    messagingSenderId: "277144452911",
+    appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  document.getElementById("login-form").addEventListener("submit", function(e) {
+    e.preventDefault(); // Impede envio tradicional do formulário
+
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, senha)
+      .then((userCredential) => {
+        // Redireciona para a página de perfil após login bem-sucedido
+        window.location.href = "../profile/profile.html";
+      })
+      .catch((error) => {
+        alert("Erro ao fazer login: " + error.message);
+      });
+  });
 </script>
+
 </body>
 </html>

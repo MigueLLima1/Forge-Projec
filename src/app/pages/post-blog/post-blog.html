@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Postar Blog</title>
+  <link rel="stylesheet" href="post-blog.css" />
+</head>
+<body>
+  <div class="container">
+    <button onclick="window.location.href='../dashboard.html'" style="margin-bottom: 20px;">Voltar para a página principal</button>
+    <h2 id="welcome">Bem-vindo!</h2>
+    <p id="info"></p>
+    <button id="logout">Sair</button>
+
+    <hr />
+
+    <h3>Criar novo post</h3>
+    <form id="form-post">
+      <input type="text" id="titulo" placeholder="Título do post" required />
+      <textarea id="conteudo" placeholder="Escreva seu conteúdo aqui..." required></textarea>
+      <button type="submit">Publicar</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+      authDomain: "forge-projectv2.firebaseapp.com",
+      projectId: "forge-projectv2",
+      storageBucket: "forge-projectv2.firebasestorage.app",
+      messagingSenderId: "277144452911",
+      appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const welcome = document.getElementById("welcome");
+    const info = document.getElementById("info");
+
+    let userData = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const uid = user.uid;
+        const docSnap = await getDoc(doc(db, "usuarios", uid));
+
+        if (docSnap.exists()) {
+          userData = docSnap.data();
+          welcome.textContent = `Bem-vindo(a), ${userData.nome}!`;
+          info.textContent = `Curso: ${userData.curso} | Universidade: ${userData.universidade}`;
+        }
+      } else {
+        window.location.href = "../login/login.html";
+      }
+    });
+
+    document.getElementById("logout").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "../login/login.html";
+      });
+    });
+
+    document.getElementById("form-post").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const titulo = document.getElementById("titulo").value;
+      const conteudo = document.getElementById("conteudo").value;
+
+      await addDoc(collection(db, "posts"), {
+        titulo,
+        conteudo,
+        autor: userData.nome,
+        curso: userData.curso,
+        universidade: userData.universidade,
+        criadoEm: serverTimestamp()
+      });
+
+      alert("Post publicado com sucesso!");
+      document.getElementById("form-post").reset();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+.floating-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #716fd9;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 999;
+}
+
+.floating-button:hover {
+    background-color: #5c5acb;
+}
+
+.profile-icon {
+    color: white;
+    font-size: 20px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+.navbar-profile {
+    display: flex;
+    align-items: center;
+}

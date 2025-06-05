@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Criar Conta</title>
+  <link rel="stylesheet" href="criarconta.css" />
+</head>
+<body>
+  <div class="container">
+    <form id="form-cadastro">
+      <h2>Criar Conta</h2>
+
+      <label for="name">Nome:</label>
+      <input type="text" id="name" required />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" required />
+
+      <label for="password">Senha:</label>
+      <input type="password" id="password" required />
+
+      <label for="confirm-password">Confirmar Senha:</label>
+      <input type="password" id="confirm-password" required />
+
+      <label for="dob">Data de Nascimento:</label>
+      <input type="date" id="dob" required />
+
+      <label for="gender">Sexo:</label>
+      <select id="gender" required>
+        <option value="">Selecione</option>
+        <option value="male">Masculino</option>
+        <option value="female">Feminino</option>
+        <option value="other">Outro</option>
+      </select>
+
+      <label for="university">Universidade:</label>
+      <select id="university" required>
+        <option value="">Selecione</option>
+        <option value="ceub">CEUB</option>
+        <option value="iesb">IESB</option>
+        <option value="catolica">Católica</option>
+      </select>
+
+      <label for="course">Curso:</label>
+      <select id="course" required>
+        <option value="">Selecione</option>
+        <option value="ads">Análise e Desenvolvimento de Sistemas</option>
+        <option value="cc">Ciência da Computação</option>
+        <option value="cd">Ciência de Dados</option>
+        <option value="ec">Engenharia da Computação</option>
+        <option value="es">Engenharia de Software</option>
+      </select>
+
+      <input type="submit" value="Criar Conta" />
+      <p class="login-link">
+        Já tem uma conta? <a href="../login/login.html">Faça login</a>.
+      </p>
+    </form>
+  </div>
+
+  <!-- ✅ Script Firebase + Cadastro -->
+  <script type="module">
+    // Importações via CDN
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ✅ Sua configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+      authDomain: "forge-projectv2.firebaseapp.com",
+      projectId: "forge-projectv2",
+      storageBucket: "forge-projectv2.firebasestorage.app",
+      messagingSenderId: "277144452911",
+      appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+    };
+
+    // Inicialização dos serviços Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Evento de cadastro
+    document.getElementById("form-cadastro").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("password").value;
+      const confirmar = document.getElementById("confirm-password").value;
+
+      const nome = document.getElementById("name").value;
+      const dob = document.getElementById("dob").value;
+      const sexo = document.getElementById("gender").value;
+      const universidade = document.getElementById("university").value;
+      const curso = document.getElementById("course").value;
+
+      if (senha !== confirmar) {
+        alert("As senhas não coincidem.");
+        return;
+      }
+
+      try {
+        // Cria usuário na autenticação
+        const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+        const uid = userCredential.user.uid;
+
+        // Salva os dados do perfil no Firestore
+        await setDoc(doc(db, "usuarios", uid), {
+          nome,
+          email,
+          dataNascimento: dob,
+          sexo,
+          universidade,
+          curso,
+          criadoEm: new Date()
+        });
+
+        alert("Usuário cadastrado com sucesso!");
+        // Redirecionar (opcional): window.location.href = "../login/login.html";
+      } catch (error) {
+        alert("Erro: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

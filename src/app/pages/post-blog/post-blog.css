@@ -1,0 +1,111 @@
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f2f4f8;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  background-color: #ffffff;
+  margin-top: 40px;
+  padding: 40px;
+  border-radius: 16px;
+  width: 95%;
+  max-width: 800px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #2c3e50;
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+#info {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+#logout {
+  background-color: #e74c3c;
+  border: none;
+  padding: 10px 16px;
+  color: white;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  float: right;
+  margin-top: -40px;
+}
+
+#logout:hover {
+  background-color: #c0392b;
+}
+
+form {
+  margin-top: 20px;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  background-color: #fdfdfd;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button[type="submit"] {
+  background-color: #716fd9;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button[type="submit"]:hover {
+  background-color: #5c5acb;
+}
+
+.post {
+  background-color: #f9f9fc;
+  padding: 20px;
+  border: 1px solid #e1e4ec;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  transition: box-shadow 0.2s;
+}
+
+.post:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.post h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.post p {
+  margin: 10px 0;
+  color: #444;
+}
+
+.post small {
+  display: block;
+  margin-top: 12px;
+  color: #888;
+  font-size: 13px;
+}

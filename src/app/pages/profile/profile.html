@@ -3,87 +3,453 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Perfil do Usuário</title>
-  <link rel="stylesheet" href="profile.css" />
+  <title>Perfil do Utilizador - Forge Project</title>
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5;
+    }
+    .profile-cover { /* Conceptual for a cover image if desired later */
+      background-image: url('https://placehold.co/1200x300/6366f1/e0e7ff?text=Imagem+de+Capa');
+      background-size: cover;
+      background-position: center;
+      height: 200px; /* Adjust as needed */
+    }
+    .tab-button {
+        @apply px-4 py-2 font-medium text-sm rounded-t-md transition-colors duration-150 border-b-2 border-transparent;
+    }
+    .tab-button.active {
+        @apply border-indigo-600 text-indigo-600;
+    }
+    .tab-button:not(.active) {
+        @apply text-gray-500 hover:text-indigo-500 hover:border-indigo-300;
+    }
+    .tab-content {
+        @apply hidden;
+    }
+    .tab-content.active {
+        @apply block;
+    }
+  </style>
 </head>
-<body>
-  <div class="container">
-    <h2>Perfil do Usuário</h2>
-    <div class="profile-image">
-      <img id="profile-pic" src="https://via.placeholder.com/120" alt="Foto de perfil">
-      <input type="file" id="upload-pic" accept="image/*">
+<body class="text-gray-800">
+
+  <!-- Header da Aplicação (semelhante ao da main-page, mas pode ser simplificado) -->
+  <header class="bg-white shadow-sm sticky top-0 z-40">
+    <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+      <a href="../main-page/main-page.html" class="text-xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+        Forge Project
+      </a>
+      <nav class="flex items-center space-x-3">
+        <a href="../main-page/main-page.html" class="text-sm text-gray-600 hover:text-indigo-600" title="Feed">
+          <i class="fas fa-home fa-lg"></i>
+        </a>
+        <a href="./advanced-post-editor.html" class="text-sm text-gray-600 hover:text-indigo-600" title="Criar Artigo">
+          <i class="fas fa-plus-square fa-lg"></i>
+        </a>
+        <a href="./settings.html" class="text-sm text-gray-600 hover:text-indigo-600" title="Configurações">
+          <i class="fas fa-cog fa-lg"></i>
+        </a>
+         <button id="logoutTopBtn" class="text-sm text-red-500 hover:text-red-700" title="Sair">
+          <i class="fas fa-sign-out-alt fa-lg"></i>
+        </button>
+      </nav>
     </div>
-    <div class="profile-box">
-      <p id="user-name"></p>
-      <p id="user-email"></p>
-      <p id="user-curso"></p>
-      <p id="user-universidade"></p>
+  </header>
+
+  <main class="container mx-auto px-2 sm:px-4 py-8">
+    <!-- Profile Header -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+      <div class="profile-cover">&nbsp;</div>
+      <div class="p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row items-center sm:items-end -mt-16 sm:-mt-20">
+          <div class="relative group">
+            <img id="profileUserPic" src="https://placehold.co/160x160/a5b4fc/1e1b4b?text=Perfil" alt="[Foto de perfil]" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white object-cover bg-gray-200">
+            <label id="uploadPicContainer" for="uploadPicInput" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer hidden">
+              <i class="fas fa-camera fa-2x"></i>
+              <input type="file" id="uploadPicInput" accept="image/*" class="hidden">
+            </label>
+          </div>
+          <div class="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
+            <h1 id="profileUserName" class="text-2xl sm:text-3xl font-bold text-gray-800">A carregar nome...</h1>
+            <p id="profileUserHandle" class="text-sm text-gray-500">@utilizador</p>
+            <p id="profileUserBioShort" class="text-sm text-gray-600 mt-1 max-w-md">A carregar bio...</p>
+          </div>
+          <div id="profileActionButtons" class="mt-4 sm:mt-0 sm:ml-auto space-x-2">
+            <!-- Botões como "Seguir" ou "Editar Perfil" aparecerão aqui -->
+          </div>
+        </div>
+        <!-- Stats (conceptual) -->
+        <div class="mt-6 pt-4 border-t border-gray-200 flex justify-around text-center">
+          <div>
+            <p class="text-xl font-semibold text-gray-800" id="profilePostCount">0</p>
+            <p class="text-sm text-gray-500">Posts</p>
+          </div>
+          <div>
+            <p class="text-xl font-semibold text-gray-800">0</p>
+            <p class="text-sm text-gray-500">Seguidores</p>
+          </div>
+          <div>
+            <p class="text-xl font-semibold text-gray-800">0</p>
+            <p class="text-sm text-gray-500">A Seguir</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="actions">
-      <button id="logout">Sair</button>
-      <button onclick="window.location.href='../main-page/main-page.html'">Painel Principal</button>
+
+    <!-- Profile Content: Tabs -->
+    <div class="bg-white rounded-lg shadow-lg">
+      <div class="border-b border-gray-200">
+        <nav class="flex px-4 -mb-px" aria-label="Tabs">
+          <button data-tab="posts" class="tab-button active">
+            <i class="fas fa-stream fa-fw mr-1"></i>Posts
+          </button>
+          <button data-tab="about" class="tab-button">
+            <i class="fas fa-info-circle fa-fw mr-1"></i>Sobre
+          </button>
+          <!-- Poderia adicionar mais abas como "Conexões", "Projetos", etc. -->
+        </nav>
+      </div>
+
+      <!-- Conteúdo da Aba Posts -->
+      <section id="postsContent" data-tab-content="posts" class="tab-content active p-4 sm:p-6 space-y-6">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">Publicações</h2>
+        <div id="user-posts" class="mt-6 space-y-4"></div>
+        <div id="userPostsFeed" class="space-y-4">
+          <p id="loadingUserPosts" class="text-center text-gray-500 py-4">A carregar posts do utilizador...</p>
+          function renderUserPost(postData) {
+    const title = postData.title || "Sem título";
+    const content = postData.contentHTML || postData.content || "";
+    const createdAt = postData.createdAt?.toDate 
+        ? postData.createdAt.toDate().toLocaleString('pt-BR') 
+        : "Data desconhecida";
+    const likes = postData.likeCount || 0;
+    const comments = postData.commentCount || 0;
+
+    return `
+        <article class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-indigo-700 mb-2">${title}</h3>
+            <p class="text-xs text-gray-500 mb-2">${createdAt}</p>
+            <div class="text-gray-700 text-sm leading-relaxed prose prose-sm">${content}</div>
+            <div class="mt-3 flex justify-end space-x-3 text-xs text-gray-500">
+                <span><i class="far fa-thumbs-up mr-1"></i>${likes}</span>
+                <span><i class="far fa-comment-alt mr-1"></i>${comments}</span>
+            </div>
+        </article>
+    `;
+}
+
+        </div>
+      </section>
+
+      <!-- Conteúdo da Aba Sobre -->
+      <section id="aboutContent" data-tab-content="about" class="tab-content p-4 sm:p-6">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">Sobre <span id="aboutUserName" class="font-bold"></span></h2>
+        <div class="space-y-4 text-gray-700">
+          <div>
+            <h3 class="text-sm font-medium text-gray-500">Biografia Completa</h3>
+            <p id="aboutUserBio" class="mt-1 leading-relaxed">A carregar...</p>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500">Curso</h3>
+            <p id="aboutUserCourse" class="mt-1">A carregar...</p>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500">Universidade</h3>
+            <p id="aboutUserUniversity" class="mt-1">A carregar...</p>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500">Email</h3>
+            <p id="aboutUserEmail" class="mt-1">A carregar...</p>
+          </div>
+          <!-- Adicionar mais campos conforme necessário -->
+        </div>
+      </section>
     </div>
+  </main>
+  
+  <div id="feedbackMessage" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl text-sm opacity-0 transition-opacity duration-300 z-50">
+    Mensagem de feedback!
   </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
-      authDomain: "forge-projectv2.firebaseapp.com",
-      projectId: "forge-projectv2",
-      storageBucket: "forge-projectv2.appspot.com",
-      messagingSenderId: "277144452911",
-      appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
-    };
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-profile-app-id';
+    let firebaseConfig;
+
+    // !!! IMPORTANTE: SUBSTITUA OS VALORES ABAIXO PELAS SUAS CREDENCIAIS REAIS DO FIREBASE !!!
+    // !!! SE AS VARIÁVEIS GLOBAIS __firebase_config NÃO ESTIVEREM DISPONÍVEIS NO SEU AMBIENTE. !!!
+    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+        try {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } catch (e) {
+            console.error("Erro ao fazer parse da configuração do Firebase JSON:", e);
+            alert("Erro crítico na configuração da aplicação. Contacte o suporte.");
+            // Prevenir execução adicional se a config falhar
+            throw new Error("Configuração do Firebase inválida."); 
+        }
+    } else {
+        console.warn("Variável global __firebase_config não definida. A usar config de fallback. VERIFIQUE E SUBSTITUA COM AS SUAS CREDENCIAIS REAIS DO FIREBASE.");
+        firebaseConfig = {
+  apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+  authDomain: "forge-projectv2.firebaseapp.com",
+  projectId: "forge-projectv2",
+  storageBucket: "forge-projectv2.appspot.com",
+  messagingSenderId: "277144452911",
+  appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+};
+    }
+
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    const pic = document.getElementById("profile-pic");
-    const fileInput = document.getElementById("upload-pic");
+    let loggedInUserId = null;
+    let viewedUserId = null; 
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const docSnap = await getDoc(doc(db, "usuarios", user.uid));
-        if (docSnap.exists()) {
-          const dados = docSnap.data();
-          document.getElementById("user-name").textContent = "Nome: " + dados.nome;
-          document.getElementById("user-email").textContent = "Email: " + user.email;
-          document.getElementById("user-curso").textContent = "Curso: " + dados.curso;
-          document.getElementById("user-universidade").textContent = "Universidade: " + dados.universidade;
-        }
+    const profileUserPicEl = document.getElementById('profileUserPic');
+    const uploadPicContainerEl = document.getElementById('uploadPicContainer');
+    const uploadPicInputEl = document.getElementById('uploadPicInput');
+    const profileUserNameEl = document.getElementById('profileUserName');
+    const profileUserHandleEl = document.getElementById('profileUserHandle');
+    const profileUserBioShortEl = document.getElementById('profileUserBioShort');
+    const profileActionButtonsEl = document.getElementById('profileActionButtons');
+    const profilePostCountEl = document.getElementById('profilePostCount');
+    
+    const aboutUserNameEl = document.getElementById('aboutUserName');
+    const aboutUserBioEl = document.getElementById('aboutUserBio');
+    const aboutUserCourseEl = document.getElementById('aboutUserCourse');
+    const aboutUserUniversityEl = document.getElementById('aboutUserUniversity');
+    const aboutUserEmailEl = document.getElementById('aboutUserEmail');
 
-        const imageRef = ref(storage, 'fotosPerfil/' + user.uid + '.jpg');
-        try {
-          const url = await getDownloadURL(imageRef);
-          pic.src = url;
-        } catch (e) {
-          console.log("Foto de perfil ainda não enviada.");
-        }
+    const userPostsFeedEl = document.getElementById('userPostsFeed');
+    const loadingUserPostsEl = document.getElementById('loadingUserPosts');
+    const feedbackMessageEl = document.getElementById('feedbackMessage');
+    const logoutTopBtnEl = document.getElementById('logoutTopBtn');
 
-        fileInput.addEventListener("change", async (event) => {
-          const file = event.target.files[0];
-          if (file) {
-            await uploadBytes(imageRef, file);
-            const newUrl = await getDownloadURL(imageRef);
-            pic.src = newUrl;
-          }
+
+    function showFeedback(message, isError = false) {
+        if (!feedbackMessageEl) return;
+        feedbackMessageEl.textContent = message;
+        feedbackMessageEl.className = 'fixed bottom-5 right-5 py-3 px-5 rounded-lg shadow-xl text-sm transition-opacity duration-300 z-50'; 
+        feedbackMessageEl.classList.add(isError ? 'bg-red-500' : 'bg-green-500', 'text-white');
+        feedbackMessageEl.classList.remove('opacity-0');
+        setTimeout(() => {
+            feedbackMessageEl.classList.add('opacity-0');
+        }, 3000);
+    }
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            const targetTab = button.dataset.tab;
+            tabContents.forEach(content => {
+                content.classList.toggle('active', content.dataset.tabContent === targetTab);
+            });
         });
-
-      } else {
-        window.location.href = "../login/login.html";
-      }
     });
 
-    document.getElementById("logout").addEventListener("click", () => {
-      signOut(auth).then(() => window.location.href = "../login/login.html");
-    });
+    async function displayUserProfile(userId) {
+        const userProfilePath = `usuarios/${userId}`; 
+        try {
+            const docRef = doc(db, userProfilePath);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (profileUserNameEl) profileUserNameEl.textContent = data.nome || "Utilizador Desconhecido";
+                if (profileUserHandleEl) profileUserHandleEl.textContent = data.username || `@${(data.nome || 'utilizador').toLowerCase().replace(/\s+/g, '')}`; 
+                if (profileUserBioShortEl) profileUserBioShortEl.textContent = data.bio ? (data.bio.substring(0, 100) + (data.bio.length > 100 ? "..." : "")) : "Nenhuma biografia definida.";
+                if (profileUserPicEl) profileUserPicEl.src = data.profileImageUrl || 'https://placehold.co/160x160/a5b4fc/1e1b4b?text=Perfil';
+                
+                if (aboutUserNameEl) aboutUserNameEl.textContent = data.nome || "";
+                if (aboutUserBioEl) aboutUserBioEl.textContent = data.bio || "Nenhuma biografia fornecida.";
+                if (aboutUserCourseEl) aboutUserCourseEl.textContent = data.curso || "Não especificado";
+                if (aboutUserUniversityEl) aboutUserUniversityEl.textContent = data.universidade || "Não especificada";
+                if (aboutUserEmailEl) aboutUserEmailEl.textContent = data.email || (auth.currentUser ? auth.currentUser.email : null) || "Não disponível";
+
+                if (profileActionButtonsEl) {
+                    profileActionButtonsEl.innerHTML = ''; 
+                    if (loggedInUserId === viewedUserId) { 
+                        const editBtn = document.createElement('a');
+                        editBtn.href = '..configuracoes/seettings.html?userId=${userId}';
+                        editBtn.className = 'bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300';
+                        editBtn.innerHTML = '<i class="fas fa-pencil-alt mr-1"></i> Editar Perfil';
+                        profileActionButtonsEl.appendChild(editBtn);
+                        if (uploadPicContainerEl) uploadPicContainerEl.classList.remove('hidden'); 
+                    } else { 
+                         if (uploadPicContainerEl) uploadPicContainerEl.classList.add('hidden');
+                    }
+                }
+
+            } else {
+                console.log(`Perfil não encontrado para o ID: ${userId}`);
+                if (profileUserNameEl) profileUserNameEl.textContent = "Utilizador Não Encontrado";
+                if (userPostsFeedEl) userPostsFeedEl.innerHTML = '<p class="text-center text-red-500 py-4">Este perfil não existe.</p>';
+            }
+        } catch (error) {
+            console.error("Erro ao carregar perfil do utilizador:", error);
+            if (profileUserNameEl) profileUserNameEl.textContent = "Erro ao Carregar Perfil";
+        }
+    }
+    
+    function formatDate(timestamp) {
+        if (!timestamp) return 'Data desconhecida';
+        const date = timestamp.toDate();
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) + ' às ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderUserPost(postData) {
+        const sanitizedContent = postData.contentHTML ? postData.contentHTML.replace(/<script.*?>.*?<\/script>/gi, '') : (postData.content || '').replace(/<script.*?>.*?<\/script>/gi, '');
+        return `
+            <article class="bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                ${postData.title && postData.title !== (sanitizedContent.substring(0,50) + (sanitizedContent.length > 50 ? "..." : "")) ? `<h3 class="text-lg font-semibold text-indigo-700 mb-1 hover:underline cursor-pointer">${postData.title}</h3>` : ''}
+                <p class="text-xs text-gray-500 mb-2">${formatDate(postData.createdAt)}</p>
+                ${postData.featuredImage ? `<img src="${postData.featuredImage}" alt="[Imagem de destaque do post]" class="rounded-md w-full object-cover max-h-80 my-2" onerror="this.style.display='none';">` : ''}
+                <div class="text-gray-600 text-sm leading-relaxed prose prose-sm max-w-none">${sanitizedContent.substring(0, 250)}${sanitizedContent.length > 250 ? '...' : ''}</div>
+                <div class="mt-3 pt-2 border-t border-gray-200 flex justify-end space-x-3">
+                    <button class="text-xs text-gray-500 hover:text-indigo-600"><i class="far fa-thumbs-up mr-1"></i>(${postData.likeCount || 0})</button>
+                    <button class="text-xs text-gray-500 hover:text-indigo-600"><i class="far fa-comment-alt mr-1"></i>(${postData.commentCount || 0})</button>
+                    <a href="#" class="text-xs text-indigo-600 hover:underline">Ler mais &rarr;</a>
+                </div>
+            </article>
+        `;
+    }
+
+    async function loadUserPosts(userId) {
+        if (!userPostsFeedEl || !loadingUserPostsEl) return;
+        loadingUserPostsEl.style.display = 'block';
+        userPostsFeedEl.innerHTML = '';
+
+        const postsCollectionPath = "posts";
+        try {
+            const q = query(collection(db, postsCollectionPath), where("authorId", "==", userId), orderBy("createdAt", "desc"), limit(10));
+            const querySnapshot = await getDocs(q);
+            
+            if (profilePostCountEl) profilePostCountEl.textContent = querySnapshot.size; 
+
+            if (querySnapshot.empty) {
+                userPostsFeedEl.innerHTML = '<p class="text-center text-gray-500 py-4">Este utilizador ainda não publicou nada.</p>';
+            } else {
+                querySnapshot.forEach(doc => {
+                    userPostsFeedEl.innerHTML += renderUserPost(doc.data());
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao carregar posts do utilizador: ", error);
+            userPostsFeedEl.innerHTML = '<p class="text-center text-red-500 py-4">Erro ao carregar posts.</p>';
+        } finally {
+            loadingUserPostsEl.style.display = 'none';
+        }
+    }
+
+    if (uploadPicInputEl && profileUserPicEl) {
+        uploadPicInputEl.addEventListener("change", async (event) => {
+            if (!loggedInUserId) {
+                showFeedback("Precisa de estar autenticado para alterar a foto.", true);
+                return;
+            }
+            if (loggedInUserId !== viewedUserId) {
+                showFeedback("Não pode alterar a foto de outro utilizador.", true);
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (file) {
+                const imageRef = ref(storage, `fotosPerfil/${loggedInUserId}/${file.name}`); 
+                try {
+                    showFeedback("A carregar foto...", false);
+                    await uploadBytes(imageRef, file);
+                    const newUrl = await getDownloadURL(imageRef);
+                    profileUserPicEl.src = newUrl;
+                    
+                    const userProfilePath = `usuarios/${loggedInUserId}`;
+                    await setDoc(doc(db, userProfilePath), { profileImageUrl: newUrl }, { merge: true });
+                    showFeedback("Foto de perfil atualizada!", false);
+
+                } catch (error) {
+                    console.error("Erro ao fazer upload da foto:", error);
+                    showFeedback("Erro ao fazer upload da foto.", true);
+                }
+            }
+        });
+    }
+    
+    if(logoutTopBtnEl) {
+        logoutTopBtnEl.addEventListener("click", () => {
+            signOut(auth).then(() => {
+                showFeedback("Sessão terminada com sucesso.", false);
+                 try {
+                    window.location.assign('login.html'); // Usar assign e caminho sem './'
+                 } catch (e) {
+                    console.error("Falha ao tentar redirecionar para login.html após logout:", e);
+                 }
+            }).catch(error => {
+                console.error("Erro ao sair:", error);
+                showFeedback("Erro ao terminar sessão.", true);
+            });
+        });
+    }
+
+    async function initProfilePage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdFromParam = urlParams.get('userId');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                loggedInUserId = user.uid;
+                viewedUserId = userIdFromParam || loggedInUserId; 
+                
+                await displayUserProfile(viewedUserId);
+                await loadUserPosts(viewedUserId);
+
+            } else {
+                if (userIdFromParam) {
+                    viewedUserId = userIdFromParam;
+                    console.log("Utilizador não logado, mas a visualizar perfil público de:", viewedUserId);
+                    await displayUserProfile(viewedUserId); 
+                    await loadUserPosts(viewedUserId);
+                    if (profileActionButtonsEl) profileActionButtonsEl.innerHTML = ''; 
+                    if (uploadPicContainerEl) uploadPicContainerEl.classList.add('hidden');
+
+                } else {
+                    console.log("Nenhum utilizador logado. Redirecionando para login.");
+                     try {
+                        window.location.assign('login.html'); // Usar assign e caminho sem './'
+                     } catch (e) {
+                        console.error("Falha ao tentar redirecionar para login.html na inicialização:", e);
+                     }
+                }
+            }
+        });
+        
+        if (typeof __initial_auth_token === 'undefined' && !auth.currentUser) {
+            console.warn("Nenhum token de autenticação inicial e nenhum utilizador atual. Tentando login anónimo.");
+            try {
+                await signInAnonymously(auth);
+            } catch(e) {
+                console.error("Falha no login anónimo:", e);
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initProfilePage);
   </script>
 </body>
 </html>

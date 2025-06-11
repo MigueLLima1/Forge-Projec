@@ -111,7 +111,7 @@
               <label for="profileImageUrl" class="block text-sm font-medium text-gray-700 mb-1">URL da Foto de Perfil</label>
               <input type="url" id="profileImageUrl" name="profileImageUrl" placeholder="https://exemplo.com/sua-foto.jpg" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
               <img id="profileImagePreview" src="https://placehold.co/128x128/e0e7ff/3730a3?text=Pr%C3%A9via" alt="[Prévia da foto de perfil]" class="mt-3 rounded-full w-32 h-32 object-cover border-2 border-gray-200" onerror="this.onerror=null;this.src='https://placehold.co/128x128/e0e7ff/3730a3?text=Erro';">
-            </div>
+            </div> 
             <div class="pt-4 text-right">
               <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
                 Guardar Alterações do Perfil
@@ -214,7 +214,7 @@
   <script type="module">
     // Importações do Firebase SDK - Versão atualizada
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Configuração do Firebase
@@ -235,15 +235,17 @@
         console.warn("Variável global __firebase_config não definida. A usar configuração manual de fallback. VERIFIQUE SE ISTO É INTENCIONAL.");
         // Configuração de fallback - NÃO USE EM PRODUÇÃO SEM SUBSTITUIR AS CHAVES
         firebaseConfig = {
-            apiKey: "YOUR_API_KEY_FALLBACK",
-            authDomain: "YOUR_AUTH_DOMAIN_FALLBACK",
-            projectId: "YOUR_PROJECT_ID_FALLBACK",
-            storageBucket: "YOUR_STORAGE_BUCKET_FALLBACK",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID_FALLBACK",
-            appId: "YOUR_APP_ID_FALLBACK"
-        };
-         showFeedback("Configuração do Firebase não encontrada. Usando fallback.", true);
+  apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+  authDomain: "forge-projectv2.firebaseapp.com",
+  projectId: "forge-projectv2",
+  storageBucket: "forge-projectv2.appspot.com",
+  messagingSenderId: "277144452911",
+  appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+};
     }
+
+    // Variáveis globais
+    let logoutTimer; // Para o timer de logout automático
 
     let app;
     let auth;
@@ -261,6 +263,18 @@
         showFeedback("Erro fatal ao inicializar a aplicação. Verifique a consola.", true);
         // Impedir que o resto do script seja executado se o Firebase não inicializar
         throw error;
+    }
+
+    // Função para logout automático após inatividade (exemplo)
+    function startLogoutTimer() {
+        // Limpa qualquer timer existente
+        clearTimeout(logoutTimer);
+        // Define um novo timer (ex: 30 minutos de inatividade)
+        logoutTimer = setTimeout(async () => {
+            console.log("Inatividade detetada. A fazer logout...");
+            await signOut(auth);
+            showFeedback("Sessão expirada por inatividade. Faça login novamente.", true);
+        }, 30 * 60 * 1000); // 30 minutos em milissegundos
     }
 
 
@@ -372,6 +386,7 @@
     // Autenticação e configuração do listener de estado
     async function setupAuthListener() {
         try {
+            startLogoutTimer(); // Inicia o timer de logout na inicialização
             // Tenta manter a sessão do utilizador (opcional, mas bom para UX)
             await setPersistence(auth, browserLocalPersistence);
 
@@ -392,6 +407,7 @@
         onAuthStateChanged(auth, async (user) => {
             isAuthReady = true; // Marca que a verificação inicial de autenticação foi concluída
             if (user) {
+                 startLogoutTimer(); // Reinicia o timer a cada mudança de estado (útil para atividade)
                 currentUserId = user.uid;
                 if (userEmailEl) userEmailEl.textContent = user.email || (user.isAnonymous ? "Utilizador Anónimo" : "Email não disponível");
                 if (userIdDisplayEl) userIdDisplayEl.textContent = currentUserId; // Mostrar o ID do utilizador
@@ -424,6 +440,7 @@
                 }
 
             } else {
+                clearTimeout(logoutTimer); // Limpa o timer se o utilizador fizer logout
                 currentUserId = null;
                 isAuthReady = true; // Auth está pronto, mas sem utilizador.
                 if (userEmailEl) userEmailEl.textContent = "Não autenticado";
@@ -440,6 +457,12 @@
                 }, 3000);
             }
         });
+
+        // Adiciona listeners para reiniciar o timer em caso de atividade do utilizador
+        document.addEventListener('mousemove', startLogoutTimer);
+        document.addEventListener('keypress', startLogoutTimer);
+        document.addEventListener('scroll', startLogoutTimer);
+        document.addEventListener('click', startLogoutTimer);
     }
 
 

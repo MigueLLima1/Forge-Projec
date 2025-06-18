@@ -353,7 +353,7 @@
              return;
         }
         // Caminho correto para dados privados do utilizador
-        const userProfilePath = `artifacts/${appId}/users/${userId}/profileDetails`;
+        const userProfilePath = `usuarios/${userId}`;
         try {
             const docRef = doc(db, userProfilePath);
             const docSnap = await getDoc(docRef);
@@ -467,40 +467,37 @@
 
 
     // Guardar dados do perfil
-    if (profileForm) {
-        profileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!isAuthReady) {
-                showFeedback("Aguarde, a autenticação ainda está a ser processada...", true);
-                return;
-            }
-            if (!currentUserId || (auth.currentUser && auth.currentUser.isAnonymous)) {
-                showFeedback("Precisa de estar autenticado (e não ser anónimo) para guardar o perfil.", true);
-                return;
-            }
-
-            // Caminho correto para dados privados do utilizador
-            const userProfilePath = `artifacts/${appId}/users/${currentUserId}/profileDetails`;
-
-            try {
-                const profileData = {
-                    nome: profileNameEl.value.trim(),
-                    curso: profileCourseEl.value.trim(),
-                    universidade: profileUniversityEl.value.trim(),
-                    bio: profileBioEl.value.trim(),
-                    profileImageUrl: profileImageUrlEl.value.trim(),
-                    updatedAt: serverTimestamp(), // Marcar quando foi atualizado
-                    createdBy: currentUserId // Opcional: guardar quem criou/atualizou
-                };
-                // Usar setDoc com merge: true para criar o documento se não existir, ou atualizar se existir.
-                await setDoc(doc(db, userProfilePath), profileData, { merge: true });
-                showFeedback("Perfil atualizado com sucesso!", false);
-            } catch (error) {
-                console.error("Erro ao guardar perfil:", error);
-                showFeedback("Erro ao guardar o seu perfil. Tente novamente.", true);
-            }
-        });
+    profileForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!isAuthReady) {
+        showFeedback("Aguarde, a autenticação ainda está a ser processada...", true);
+        return;
     }
+    if (!currentUserId || (auth.currentUser && auth.currentUser.isAnonymous)) {
+        showFeedback("Precisa de estar autenticado (e não ser anónimo) para guardar o perfil.", true);
+        return;
+    }
+
+    const userProfilePath = `usuarios/${currentUserId}`;  // <<<<< CORRIGIDO
+
+    try {
+        const profileData = {
+            nome: profileNameEl.value.trim(),
+            curso: profileCourseEl.value.trim(),
+            universidade: profileUniversityEl.value.trim(),
+            bio: profileBioEl.value.trim(),
+            profileImageUrl: profileImageUrlEl.value.trim(),
+            updatedAt: serverTimestamp(),
+            createdBy: currentUserId
+        };
+        await setDoc(doc(db, userProfilePath), profileData, { merge: true });
+        showFeedback("Perfil atualizado com sucesso!", false);
+    } catch (error) {
+        console.error("Erro ao guardar perfil:", error);
+        showFeedback("Erro ao guardar o seu perfil. Tente novamente.", true);
+    }
+});
+
 
     // Inicialização quando o DOM estiver pronto
     document.addEventListener('DOMContentLoaded', () => {

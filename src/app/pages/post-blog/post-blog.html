@@ -318,6 +318,7 @@
           authorCourse: userData.curso,
           authorUniversity: userData.universidade,
           authorId: auth.currentUser ? auth.currentUser.uid : null, // Salva o ID do autor
+          authorPhotoURL: userData.profileImageUrl || null,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           status: status, // 'published' ou 'draft'

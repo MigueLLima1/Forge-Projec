@@ -3,236 +3,364 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Criar Conta - Forge Blog</title>
+  <title>Post - Forge Project</title>
   <!-- Incluindo Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Favicon (substitua pelo seu, igual ao da landing page) -->
-  <link rel="icon" href="https://placehold.co/32x32/6366f1/white?text=FB" type="image/png">
-  <!-- Incluindo AOS CSS (opcional para esta página, mas mantido para consistência se quiser usar) -->
+  <!-- Favicon -->
+  <link rel="icon" href="https://placehold.co/32x32/6366f1/white?text=FP" type="image/png">
+  <!-- Incluindo AOS CSS -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <!-- Link para o seu ficheiro CSS externo (o mesmo da landing page) -->
-  <link rel="stylesheet" href="/Forge-Project V2/src/app/pages/create-account/criarconta.css"> <!-- Ajuste o caminho se necessário -->
+  <style>
+    body { scroll-behavior: smooth; }
+    .prose img { border-radius: 0.5rem; }
+    .modal-overlay { transition: opacity 0.3s ease; }
+    .modal-container { transition: transform 0.3s ease; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+<script type="module">
+  // --- MÓDULOS FIREBASE ---
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { 
+    getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, 
+    query, where, onSnapshot, orderBy, deleteDoc, updateDoc, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
-  <!-- Header Simplificado -->
-  <header class="bg-white shadow-md w-full z-10">
+  // --- CONFIGURAÇÃO FIREBASE ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+    authDomain: "forge-projectv2.firebaseapp.com",
+    projectId: "forge-projectv2",
+    storageBucket: "forge-projectv2.appspot.com",
+    messagingSenderId: "277144452911",
+    appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+  };
+
+  // --- INICIALIZAÇÃO DOS SERVIÇOS ---
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  let currentUser = null;
+
+  // --- LÓGICA DE AUTENTICAÇÃO ---
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    document.getElementById('logout-button')?.classList.toggle('hidden', !user);
+    carregarPostEComentarios();
+  });
+  
+  // --- FUNÇÃO DE LOGOUT ---
+  function setupLogoutButton() {
+    document.getElementById('logout-button')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        signOut(auth).catch(error => console.error('Erro no logout', error));
+    });
+  }
+
+  // --- LÓGICA DE GESTÃO DE POSTS ---
+  window.showDeleteModal = () => document.getElementById('delete-modal').classList.remove('hidden');
+  window.hideDeleteModal = () => document.getElementById('delete-modal').classList.add('hidden');
+
+  window.handleDeletePost = async () => {
+    const postId = new URLSearchParams(window.location.search).get('id');
+    if (!postId || !currentUser) return;
+    const commentsQuery = query(collection(db, "comments"), where("postId", "==", postId));
+    const commentsSnapshot = await getDocs(commentsQuery);
+    await Promise.all(commentsSnapshot.docs.map(commentDoc => deleteDoc(commentDoc.ref)));
+    await deleteDoc(doc(db, "posts", postId));
+    window.location.href = "../main-page/main-page.html";
+  }
+  
+  window.toggleEditMode = (isEditing) => {
+      const viewModeElements = document.querySelectorAll('.view-mode');
+      const editModeElements = document.querySelectorAll('.edit-mode');
+      if (isEditing) {
+          document.getElementById('edit-title').value = document.getElementById('post-title').textContent;
+          document.getElementById('edit-content').value = document.getElementById('post-content').innerHTML; 
+          viewModeElements.forEach(el => el.classList.add('hidden'));
+          editModeElements.forEach(el => el.classList.remove('hidden'));
+      } else {
+          viewModeElements.forEach(el => el.classList.remove('hidden'));
+          editModeElements.forEach(el => el.classList.add('hidden'));
+      }
+  }
+
+  window.handleUpdatePost = async () => {
+      const postId = new URLSearchParams(window.location.search).get('id');
+      if (!postId || !currentUser) return;
+      const newTitle = document.getElementById('edit-title').value;
+      const newContent = document.getElementById('edit-content').value;
+      const postRef = doc(db, "posts", postId);
+      await updateDoc(postRef, { title: newTitle, contentHTML: newContent });
+      document.getElementById('post-title').textContent = newTitle;
+      document.getElementById('post-content').innerHTML = newContent;
+      toggleEditMode(false);
+  }
+
+  // --- CARREGAR POST ---
+  async function carregarPostEComentarios() {
+    const postId = new URLSearchParams(window.location.search).get('id');
+    if (!postId) {
+      document.getElementById("post-content-wrapper").innerHTML = "<h1 class='text-center text-2xl'>Post não encontrado.</h1>";
+      return;
+    }
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+
+    if (postSnap.exists()) {
+      const data = postSnap.data();
+      document.title = `${data.title || 'Post'} - Forge Project`;
+      document.getElementById("post-title").textContent = data.title || "Sem Título";
+      document.getElementById("author-name").textContent = `Por ${data.authorName || 'Usuário Desconhecido'}`;
+      document.getElementById("post-date").textContent = `Publicado em ${data.createdAt?.seconds ? new Date(data.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : 'Data indisponível'}`;
+      document.getElementById("author-image").src = data.authorPhotoURL || 'https://placehold.co/50x50/a5b4fc/1e1b4b?text=A';
+      document.getElementById("post-content").innerHTML = data.contentHTML || "<p>O conteúdo deste post não pôde ser carregado.</p>";
+      
+      const featuredImage = document.getElementById("featured-image");
+      if (data.featuredImage) {
+        featuredImage.src = data.featuredImage;
+        document.getElementById("featured-image-container").classList.remove('hidden');
+      }
+      if (currentUser && currentUser.uid === data.authorId) {
+          document.getElementById('author-actions').classList.remove('hidden');
+      }
+      renderCommentSection(postId);
+    } else {
+      document.getElementById("post-content-wrapper").innerHTML = "<h1 class='text-center text-2xl'>Post não encontrado.</h1>";
+    }
+  }
+  
+  // --- LÓGICA DE GESTÃO DE COMENTÁRIOS ---
+
+  window.toggleCommentMenu = (commentId) => {
+      const menu = document.getElementById(`comment-menu-${commentId}`);
+      if(menu) menu.classList.toggle('hidden');
+  }
+
+  window.deleteComment = async (commentId) => {
+      if(confirm('Tem a certeza que quer apagar este comentário?')) {
+          await deleteDoc(doc(db, "comments", commentId));
+      }
+  }
+  
+  window.showEditCommentView = (commentId) => {
+      document.getElementById(`comment-menu-${commentId}`)?.classList.add('hidden');
+      document.getElementById(`comment-text-${commentId}`)?.classList.add('hidden');
+      document.getElementById(`comment-edit-form-${commentId}`)?.classList.remove('hidden');
+      document.getElementById(`comment-menu-button-${commentId}`)?.classList.add('hidden');
+  }
+
+  window.hideEditCommentView = (commentId) => {
+      document.getElementById(`comment-text-${commentId}`)?.classList.remove('hidden');
+      document.getElementById(`comment-edit-form-${commentId}`)?.classList.add('hidden');
+      document.getElementById(`comment-menu-button-${commentId}`)?.classList.remove('hidden');
+  }
+
+  window.updateComment = async (commentId) => {
+      const newText = document.getElementById(`comment-textarea-${commentId}`).value;
+      if (newText.trim()) {
+        await updateDoc(doc(db, "comments", commentId), { text: newText });
+      }
+      hideEditCommentView(commentId);
+  }
+
+  function renderCommentSection(postId) {
+      const commentFormContainer = document.getElementById('comment-form-container');
+      if (currentUser) {
+          commentFormContainer.innerHTML = `
+            <form id="comment-form">
+              <div class="mb-4"><textarea id="comentario" name="comment" rows="4" class="w-full p-4 border rounded-lg" placeholder="Escreva a sua opinião..." required></textarea></div>
+              <div class="text-right"><button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg">Publicar</button></div>
+            </form>
+          `;
+          document.getElementById('comment-form').addEventListener('submit', (e) => { e.preventDefault(); adicionarComentario(postId); });
+      } else {
+        commentFormContainer.innerHTML = `<p class="text-center text-lg p-4 bg-indigo-50 rounded-lg">Precisa de <a href="../login/login.html" class="font-bold hover:underline">fazer login</a> para comentar.</p>`;
+      }
+      carregarComentarios(postId);
+  }
+
+  function carregarComentarios(postId) {
+    const commentsContainer = document.getElementById(`comments-list`);
+    const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      commentsContainer.innerHTML = ''; 
+      document.getElementById('comment-count').textContent = `${snapshot.size} Comentário(s)`;
+      if (snapshot.empty) {
+        commentsContainer.innerHTML = "<p class='text-gray-500'>Ainda não há comentários. Seja o primeiro!</p>";
+        return;
+      }
+      snapshot.forEach(doc => {
+        const commentData = doc.data();
+        const commentId = doc.id;
+        const commentEl = document.createElement('div');
+        commentEl.className = "flex items-start space-x-3";
+        const commentDate = commentData.createdAt?.seconds ? new Date(commentData.createdAt.seconds * 1000).toLocaleString('pt-BR') : '';
+        const isAuthor = currentUser && currentUser.uid === commentData.authorId;
+        
+        commentEl.innerHTML = `
+            <img src="${commentData.authorPhotoURL || 'https://placehold.co/50x50/a5b4fc/1e1b4b?text=??'}" alt="Foto do Utilizador" class="w-12 h-12 rounded-full border-2">
+            <div class="bg-gray-100 p-4 rounded-lg flex-1">
+                <div class="flex justify-between items-center mb-1">
+                    <p class="font-semibold text-indigo-700">${commentData.authorName || "Anónimo"}</p>
+                    <div class="flex items-center space-x-2">
+                        <p class="text-xs text-gray-500">${commentDate}</p>
+                        ${isAuthor ? `
+                        <div id="comment-menu-button-${commentId}" class="relative">
+                            <button onclick="toggleCommentMenu('${commentId}')" class="text-gray-500 hover:text-gray-800">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                            </button>
+                            <div id="comment-menu-${commentId}" class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg z-20">
+                                <a href="#" onclick="event.preventDefault(); showEditCommentView('${commentId}')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Editar</a>
+                                <a href="#" onclick="event.preventDefault(); deleteComment('${commentId}')" class="block px-4 py-2 text-sm text-red-700 hover:bg-gray-100">Apagar</a>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                </div>
+                <p id="comment-text-${commentId}" class="text-gray-600 break-words">${commentData.text}</p>
+                <div id="comment-edit-form-${commentId}" class="hidden mt-2">
+                    <textarea id="comment-textarea-${commentId}" class="w-full p-2 border rounded-md">${commentData.text}</textarea>
+                    <div class="text-right mt-2 space-x-2">
+                        <button onclick="hideEditCommentView('${commentId}')" class="text-sm text-gray-600 hover:underline">Cancelar</button>
+                        <button onclick="updateComment('${commentId}')" class="text-sm bg-indigo-600 text-white py-1 px-3 rounded-md hover:bg-indigo-700">Salvar</button>
+                    </div>
+                </div>
+            </div>`;
+        commentsContainer.appendChild(commentEl);
+      });
+    });
+  }
+
+  async function adicionarComentario(postId) {
+    if (!currentUser) {
+      alert("Você precisa estar autenticado para comentar.");
+      return;
+    }
+
+    const form = document.getElementById('comment-form');
+    const textarea = form.querySelector('textarea');
+    const commentText = textarea.value.trim();
+
+    if (!commentText) return;
+
+    try {
+      // Buscar dados do autor no Firestore
+      const userDoc = await getDoc(doc(db, "usuarios", currentUser.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+
+      await addDoc(collection(db, "comments"), {
+        postId: postId,
+        text: commentText,
+        authorId: currentUser.uid,
+        authorName: userData.nome || "Usuário Anônimo",
+        authorPhotoURL: userData.profileImageUrl || currentUser.photoURL, // Fallback para a foto do Auth
+        createdAt: serverTimestamp()
+      });
+
+      textarea.value = "";
+    } catch (e) {
+      console.error("Erro ao adicionar comentário: ", e);
+      alert("Ocorreu um erro ao publicar o seu comentário.");
+    }
+  }
+
+  // --- INICIALIZAÇÃO DA PÁGINA ---
+  document.addEventListener('DOMContentLoaded', () => {
+    setupLogoutButton();
+  });
+
+</script>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md fixed w-full z-10">
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-      <a href="../../index.html" class="text-2xl font-bold text-indigo-600">Forge Blog</a>
-      <a href="../../index.html" class="text-gray-600 hover:text-indigo-600 transition duration-300">Voltar ao Início</a>
+      <a href="../main-page/main-page.html" class="text-2xl font-bold text-indigo-600">Forge Project</a>
+      <nav class="space-x-4 flex items-center">
+        <a href="../main-page/main-page.html" class="text-gray-600 hover:text-indigo-600">Feed</a>
+        <a href="../profile/profile.html" class="text-gray-600 hover:text-indigo-600">Meu Perfil</a>
+        <a href="#" id="logout-button" class="hidden text-indigo-600 hover:text-indigo-700 font-semibold py-2 px-4 rounded-lg border border-indigo-600">Logout</a>
+      </nav>
     </div>
   </header>
 
-  <!-- Conteúdo Principal -->
-  <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl">
-      <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Crie a sua conta
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-          Junte-se à comunidade Forge Blog!
-        </p>
-      </div>
-      <form id="form-cadastro" class="mt-8 space-y-6">
-        <input type="hidden" name="remember" value="true">
-        <div class="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label for="name" class="sr-only">Nome Completo</label>
-            <input id="name" name="name" type="text" required
-                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                   placeholder="Nome Completo">
-          </div>
-          <div>
-            <label for="email" class="sr-only">Endereço de email</label>
-            <input id="email" name="email" type="email" autocomplete="email" required
-                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                   placeholder="Endereço de email">
-          </div>
-          <div>
-            <label for="password" class="sr-only">Senha</label>
-            <input id="password" name="password" type="password" autocomplete="new-password" required
-                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                   placeholder="Senha">
-          </div>
-          <div>
-            <label for="confirm-password" class="sr-only">Confirmar Senha</label>
-            <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required
-                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                   placeholder="Confirmar Senha">
-          </div>
-           <div>
-            <label for="dob" class="sr-only">Data de Nascimento</label>
-            <input id="dob" name="dob" type="date" required
-                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                   placeholder="Data de Nascimento">
-          </div>
-           <div>
-            <label for="gender" class="sr-only">Sexo</label>
-            <select id="gender" name="gender" required
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-              <option value="" disabled selected>Selecione o Sexo</option>
-              <option value="male">Masculino</option>
-              <option value="female">Feminino</option>
-              <option value="other">Outro</option>
-            </select>
-          </div>
-           <div>
-            <label for="university" class="sr-only">Universidade</label>
-            <select id="university" name="university" required
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-              <option value="" disabled selected>Selecione a Universidade</option>
-              <option value="ceub">CEUB</option>
-              <option value="iesb">IESB</option>
-              <option value="catolica">Católica</option>
-              <!-- Adicionar mais opções conforme necessário -->
-            </select>
-          </div>
-          <div>
-            <label for="course" class="sr-only">Curso</label>
-            <select id="course" name="course" required
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-              <option value="" disabled selected>Selecione o Curso</option>
-              <option value="ads">Análise e Desenvolvimento de Sistemas</option>
-              <option value="cc">Ciência da Computação</option>
-              <option value="cd">Ciência de Dados</option>
-              <option value="ec">Engenharia da Computação</option>
-              <option value="es">Engenharia de Software</option>
-              <!-- Adicionar mais opções conforme necessário -->
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <button type="submit"
-                  class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Criar Conta
-          </button>
-        </div>
-      </form>
-      <div class="text-sm text-center">
-        <p class="login-link text-gray-600">
-          Já tem uma conta?
-          <a href="../login/login.html" class="font-medium text-indigo-600 hover:text-indigo-500">
-            Faça login
-          </a>
-        </p>
-      </div>
+  <main class="pt-24">
+    <div id="post-content-wrapper">
+        <article class="container mx-auto max-w-4xl px-6 py-12">
+            <div id="author-actions" class="hidden text-right mb-4 space-x-2">
+                <button onclick="toggleEditMode(true)" class="view-mode bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition">Editar</button>
+                <button onclick="showDeleteModal()" class="view-mode bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition">Excluir</button>
+                <button onclick="handleUpdatePost()" class="edit-mode hidden bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition">Salvar</button>
+                <button onclick="toggleEditMode(false)" class="edit-mode hidden bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition">Cancelar</button>
+            </div>
+            <div class="view-mode">
+                <div class="mb-8" data-aos="fade-up">
+                  <h1 id="post-title" class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 leading-tight">Carregando...</h1>
+                  <div class="flex items-center text-gray-500">
+                    <img id="author-image" src="https://placehold.co/50x50/a5b4fc/1e1b4b?text=A" alt="Foto do Autor" class="w-12 h-12 rounded-full mr-4 border-2">
+                    <div>
+                      <p id="author-name" class="font-semibold text-indigo-700">Por ...</p>
+                      <p id="post-date" class="text-sm">Publicado em ...</p>
+                    </div>
+                  </div>
+                </div>
+                <figure id="featured-image-container" class="mb-8 hidden" data-aos="zoom-in">
+                  <img id="featured-image" src="" class="w-full h-auto object-cover rounded-lg shadow-lg" />
+                </figure>
+                <div id="post-content" class="prose lg:prose-xl max-w-none"></div>
+            </div>
+            <div class="edit-mode hidden">
+                <div class="mb-4">
+                    <label for="edit-title" class="block text-sm font-medium">Título</label>
+                    <input type="text" id="edit-title" class="mt-1 block w-full px-3 py-2 border rounded-md">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-content" class="block text-sm font-medium">Conteúdo</label>
+                    <textarea id="edit-content" rows="15" class="mt-1 block w-full px-3 py-2 border rounded-md"></textarea>
+                </div>
+            </div>
+        </article>
     </div>
+
+    <section id="comentarios" class="bg-white py-12 mt-12">
+      <div class="container mx-auto max-w-3xl px-6">
+        <h2 class="text-3xl font-bold text-center mb-8">Deixe o seu Comentário</h2>
+        <div id="comment-form-container"></div>
+        <div class="space-y-8 mt-10">
+            <h3 id="comment-count" class="text-2xl font-bold border-b pb-2">... Comentários</h3>
+            <div id="comments-list" class="space-y-6"></div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Footer Simplificado -->
-  <footer class="bg-gray-800 text-gray-300 py-8 mt-auto">
+  <footer class="bg-gray-800 text-gray-300 py-12">
     <div class="container mx-auto px-6 text-center">
-      <p>&copy; <span id="currentYearFooter"></span> Forge Blog. Todos os direitos reservados.</p>
+      <p>&copy; <span id="currentYear"></span> Forge Project. Todos os direitos reservados.</p>
     </div>
   </footer>
+  
+  <div id="delete-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mt-2">Apagar Post</h3>
+            <div class="mt-2 px-7 py-3"><p class="text-sm text-gray-500">Tem a certeza de que quer apagar este post? Esta ação não pode ser desfeita.</p></div>
+            <div class="items-center px-4 py-3">
+                <button onclick="handleDeletePost()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700">Apagar</button>
+                <button onclick="hideDeleteModal()" class="px-4 py-2 bg-gray-200 rounded-md ml-2 hover:bg-gray-300">Cancelar</button>
+            </div>
+        </div>
+    </div>
+  </div>
 
-  <!-- Script Firebase + Cadastro (mesmo do seu ficheiro original) -->
-  <script type="module">
-    // Importações via CDN (garanta que as versões são compatíveis ou as mais recentes estáveis)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"; // Usando versão do seu script original
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    // Sua configuração do Firebase (mantida do seu script original)
-    // IMPORTANTE: NUNCA exponha chaves de API secretas no lado do cliente se elas concederem acesso privilegiado.
-    // Para autenticação e firestore no lado do cliente, a apiKey é geralmente segura, mas configure regras de segurança robustas no Firebase.
-    const firebaseConfig = {
-      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg", // Considere usar variáveis de ambiente se possível em produção real
-      authDomain: "forge-projectv2.firebaseapp.com",
-      projectId: "forge-projectv2",
-      storageBucket: "forge-projectv2.appspot.com", // Corrigido: .appspot.com é o padrão para storageBucket
-      messagingSenderId: "277144452911",
-      appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
-    };
-
-    // Inicialização dos serviços Firebase
-    let app, auth, db;
-    try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-    } catch (error) {
-        console.error("Erro ao inicializar Firebase:", error);
-        // Adicionar feedback visual para o usuário aqui, se a inicialização falhar
-        alert("Ocorreu um erro ao carregar a página. Tente novamente mais tarde.");
-    }
-    
-
-    // Evento de cadastro
-    const formCadastro = document.getElementById("form-cadastro");
-    if (formCadastro) {
-        formCadastro.addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const email = document.getElementById("email").value;
-          const senha = document.getElementById("password").value;
-          const confirmar = document.getElementById("confirm-password").value;
-
-          const nome = document.getElementById("name").value;
-          const dob = document.getElementById("dob").value;
-          const sexo = document.getElementById("gender").value;
-          const universidade = document.getElementById("university").value;
-          const curso = document.getElementById("course").value;
-
-          if (senha !== confirmar) {
-            // TODO: Substituir alert por uma mensagem de erro no formulário
-            alert("As senhas não coincidem.");
-            return;
-          }
-
-          if (!auth || !db) {
-            alert("Erro na configuração do sistema. Tente novamente mais tarde.");
-            return;
-          }
-
-          try {
-            // Cria usuário na autenticação
-            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-            const uid = userCredential.user.uid;
-
-            // Salva os dados do perfil no Firestore
-            // Caminho da coleção: users/{userId} - como na sua landing page.
-            // Se quiser uma coleção específica para dados de perfil: "perfisUsuarios" ou similar.
-            // Para manter consistência com a sugestão de `setDoc(doc(db, "usuarios", uid), ...)`
-            // A coleção será "usuarios".
-            await setDoc(doc(db, "usuarios", uid), {
-              nome,
-              email,
-              dataNascimento: dob,
-              sexo,
-              universidade,
-              curso,
-              criadoEm: new Date().toISOString() // Salvar como ISO string é uma boa prática
-            });
-
-            // TODO: Substituir alert por uma mensagem de sucesso e talvez redirecionamento
-            alert("Usuário cadastrado com sucesso!");
-            // Opcional: Limpar o formulário
-            e.target.reset(); 
-            // Opcional: Redirecionar para login ou painel principal
-            // window.location.href = "../login/login.html"; 
-          } catch (error) {
-            console.error("Erro ao cadastrar usuário:", error);
-            // TODO: Substituir alert por uma mensagem de erro específica no formulário
-            // Mapear códigos de erro do Firebase para mensagens amigáveis se desejar
-            // Ex: if (error.code === 'auth/email-already-in-use') { alert("Este email já está cadastrado.") }
-            alert("Erro ao cadastrar: " + error.message);
-          }
-        });
-    } else {
-        console.error("Elemento form-cadastro não encontrado.");
-    }
-    
-    // Script para o ano atual no footer
-    const currentYearFooter = document.getElementById('currentYearFooter');
-    if (currentYearFooter) {
-        currentYearFooter.textContent = new Date().getFullYear();
-    }
-
-    // Inicializa o AOS (opcional, se for usar animações nesta página)
-    // AOS.init(); 
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    AOS.init({ duration: 800, once: true });
   </script>
+
 </body>
 </html>

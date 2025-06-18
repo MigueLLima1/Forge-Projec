@@ -54,6 +54,7 @@
         mobileLogoutButton: document.getElementById('mobile-logout-button'),
         mobileCreatePostButton: document.getElementById('mobile-create-post-button')
     };
+    
 
     if (user) {
       elements.loginLink?.classList.add('hidden');
@@ -61,6 +62,7 @@
       elements.logoutButton?.classList.remove('hidden');
       elements.createPostHeaderButton?.classList.remove('hidden');
       elements.createPostHeaderButton?.classList.add('flex');
+      carregarFotoPerfilHeader(user.uid); // Carrega a foto
     } else {
       elements.loginLink?.classList.remove('hidden');
       elements.createAccountLink?.classList.remove('hidden');
@@ -68,8 +70,64 @@
       elements.createPostHeaderButton?.classList.add('hidden');
       elements.createPostHeaderButton?.classList.remove('flex');
     }
+
     carregarPosts(); // Recarrega os posts
   });
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+async function carregarMiniPerfil(userId) {
+  if (!userId) return;
+  try {
+    const userDocRef = doc(db, "usuarios", userId);
+    const userSnap = await getDoc(userDocRef);
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      const profileImageEl = document.getElementById('mini-profile-image');
+      const profileNameEl = document.getElementById('mini-profile-name');
+      const profileUsernameEl = document.getElementById('mini-profile-username');
+
+      if (profileImageEl) profileImageEl.src = userData.profileImageUrl || 'https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP';
+      if (profileNameEl) profileNameEl.textContent = userData.nome || "Meu Utilizador";
+      if (profileUsernameEl) profileUsernameEl.textContent = userData.username ? `@${userData.username}` : "@meuutilizador";
+    }
+  } catch (error) {
+    console.error("Erro ao carregar mini perfil:", error);
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    carregarMiniPerfil(user.uid);
+  }
+});
+
+// --- FUNÇÃO PARA CARREGAR FOTO DE PERFIL ---
+  async function carregarFotoPerfilHeader(userId) {
+      const headerAvatar = document.getElementById('header-profile-avatar');
+      const miniProfileAvatar = document.getElementById('mini-profile-image');
+
+      if (!headerAvatar || !miniProfileAvatar) return;
+      
+      try {
+          const userDocRef = doc(db, "usuarios", userId);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              if (userData.profileImageUrl) {
+                  headerAvatar.src = userData.profileImageUrl;
+                  miniProfileAvatar.src = userData.profileImageUrl;
+              } else {
+                 headerAvatar.src = 'https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP';
+                 miniProfileAvatar.src = 'https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP';
+              }
+          }
+      } catch (error) {
+          console.error("Erro ao carregar foto do perfil:", error);
+      }
+  }
+
 
   // --- FUNÇÃO DE LOGOUT ---
   function handleLogout() {
@@ -83,6 +141,7 @@
 
   // --- CARREGAR POSTS (FEED) ---
   async function carregarPosts() {
+    debugger
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(postsQuery);
     const container = document.getElementById("posts-wrapper");
@@ -91,12 +150,14 @@
 
     snapshot.forEach((doc) => {
       const data = doc.data();
+      const userId = data.userId;
       const postId = doc.id;
       const article = document.createElement("article");
       article.className = "bg-white rounded-lg shadow mb-4";
       article.id = `post-${postId}`;
 
       const createdAt = data.createdAt?.seconds ? new Date(data.createdAt.seconds * 1000).toLocaleString('pt-BR') : "Data indisponível";
+      
       
       // Truncar conteúdo para o feed
       const content = data.contentHTML || "";
@@ -127,10 +188,35 @@
     });
   }
   
+  
   // --- INICIALIZAÇÃO DA PÁGINA ---
   document.addEventListener('DOMContentLoaded', () => {
     setupLogoutButtons();
   });
+  
+  // Função para carregar a foto de perfil do usuário logado no header
+async function carregarAvatarHeader(userId) {
+  try {
+    const userDocRef = doc(db, "usuarios", userId);
+    const userDocSnap = await getDoc(userDocRef);
+
+    const profileAvatarEl = document.getElementById('user-profile-avatar');
+    if (userDocSnap.exists() && profileAvatarEl) {
+      const userData = userDocSnap.data();
+      if (userData.profileImageUrl) {
+        profileAvatarEl.src = userData.profileImageUrl;
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao carregar avatar no header:", error);
+  }
+}
+
+
+
+
+
+  
 </script>
 <body class="text-gray-800">
 
@@ -161,8 +247,10 @@
         <a href="#" id="logout-button" class="hidden bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Logout</a>
         
         <a href="../profile/profile.html" class="text-gray-600 hover:text-indigo-600 transition duration-300" title="Meu Perfil">
-          <img src="https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP" alt="Avatar do Utilizador" class="w-8 h-8 rounded-full border-2 border-transparent hover:border-indigo-500">
+          <img id="header-profile-avatar" src="https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP" alt="Avatar do Utilizador" class="w-8 h-8 rounded-full border-2 border-transparent hover:border-indigo-500">
         </a>
+
+
       </nav>
       <!-- Mobile Menu Button -->
       <div class="md:hidden">
@@ -194,9 +282,8 @@
           <!-- Mini Perfil -->
           <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-right">
             <a href="../profile/profile.html" class="flex flex-col items-center text-center">
-              <img src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP" alt="Foto de Perfil do Utilizador" class="w-20 h-20 rounded-full mb-2 border-2 border-indigo-300">
-              <h3 class="font-semibold text-lg text-gray-800">Meu Utilizador</h3>
-              <p class="text-sm text-gray-500">@meuutilizador</p>
+              <img id="mini-profile-image" src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP" alt="Foto de Perfil do Utilizador" class="w-20 h-20 rounded-full mb-2 border-2 border-indigo-300">
+              <h3 id="mini-profile-name" class="font-semibold text-lg text-gray-800">Meu Utilizador</h3>
             </a>
           </div>
 

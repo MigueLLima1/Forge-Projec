@@ -98,37 +98,52 @@
   }
 
   // --- CARREGAR POST ---
-  async function carregarPostEComentarios() {
-    const postId = new URLSearchParams(window.location.search).get('id');
-    if (!postId) {
-      document.getElementById("post-content-wrapper").innerHTML = "<h1 class='text-center text-2xl'>Post não encontrado.</h1>";
-      return;
-    }
-    const postRef = doc(db, "posts", postId);
-    const postSnap = await getDoc(postRef);
-
-    if (postSnap.exists()) {
-      const data = postSnap.data();
-      document.title = `${data.title || 'Post'} - Forge Project`;
-      document.getElementById("post-title").textContent = data.title || "Sem Título";
-      document.getElementById("author-name").textContent = `Por ${data.authorName || 'Usuário Desconhecido'}`;
-      document.getElementById("post-date").textContent = `Publicado em ${data.createdAt?.seconds ? new Date(data.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : 'Data indisponível'}`;
-      document.getElementById("author-image").src = data.authorPhotoURL || 'https://placehold.co/50x50/a5b4fc/1e1b4b?text=A';
-      document.getElementById("post-content").innerHTML = data.contentHTML || "<p>O conteúdo deste post não pôde ser carregado.</p>";
-      
-      const featuredImage = document.getElementById("featured-image");
-      if (data.featuredImage) {
-        featuredImage.src = data.featuredImage;
-        document.getElementById("featured-image-container").classList.remove('hidden');
-      }
-      if (currentUser && currentUser.uid === data.authorId) {
-          document.getElementById('author-actions').classList.remove('hidden');
-      }
-      renderCommentSection(postId);
-    } else {
-      document.getElementById("post-content-wrapper").innerHTML = "<h1 class='text-center text-2xl'>Post não encontrado.</h1>";
-    }
+async function carregarPostEComentarios() {
+  const postId = new URLSearchParams(window.location.search).get('id');
+  if (!postId) {
+    document.getElementById("post-content-wrapper").innerHTML = "<h1 class='text-center text-2xl'>Post não encontrado.</h1>";
+    return;
   }
+
+  const postRef = doc(db, "posts", postId);
+  const postSnap = await getDoc(postRef);
+
+  if (postSnap.exists()) {
+    const data = postSnap.data();
+
+    // NOVO BLOCO - Buscar os dados atuais do autor
+    let authorData = {};
+    if (data.authorId) {
+      const authorDoc = await getDoc(doc(db, "usuarios", data.authorId));
+      if (authorDoc.exists()) {
+        authorData = authorDoc.data();
+      }
+    }
+
+    document.title = `${data.title || 'Post'} - Forge Project`;
+    document.getElementById("post-title").textContent = data.title || "Sem Título";
+    document.getElementById("author-name").textContent = `Por ${authorData.nome || data.authorName || 'Usuário Desconhecido'}`;
+    document.getElementById("post-date").textContent = `Publicado em ${data.createdAt?.seconds ? new Date(data.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : 'Data indisponível'}`;
+    document.getElementById("author-image").src = authorData.profileImageUrl || data.authorPhotoURL || 'https://placehold.co/50x50/a5b4fc/1e1b4b?text=A';
+    document.getElementById("post-content").innerHTML = data.contentHTML || "<p>O conteúdo deste post não pôde ser carregado.</p>";
+
+    const featuredImage = document.getElementById("featured-image");
+    if (data.featuredImage) {
+      featuredImage.src = data.featuredImage;
+      document.getElementById("featured-image-container").classList.remove('hidden');
+    }
+
+    if (currentUser && currentUser.uid === data.authorId) {
+      document.getElementById('author-actions').classList.remove('hidden');
+    }
+
+    renderCommentSection(postId);
+  } else {
+    document.getElementById("post-content-wrapper").innerHTML = "<h1 class='text-center text-2xl'>Post não encontrado.</h1>";
+  }
+}
+
+  
   
   // --- LÓGICA DE GESTÃO DE COMENTÁRIOS ---
 
@@ -181,55 +196,73 @@
   }
 
   function carregarComentarios(postId) {
-    const commentsContainer = document.getElementById(`comments-list`);
-    const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      commentsContainer.innerHTML = ''; 
-      document.getElementById('comment-count').textContent = `${snapshot.size} Comentário(s)`;
-      if (snapshot.empty) {
-        commentsContainer.innerHTML = "<p class='text-gray-500'>Ainda não há comentários. Seja o primeiro!</p>";
-        return;
+  const commentsContainer = document.getElementById('comments-list');
+  const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("createdAt", "desc"));
+
+  onSnapshot(q, (snapshot) => {
+    commentsContainer.innerHTML = '';
+    document.getElementById('comment-count').textContent = `${snapshot.size} Comentário(s)`;
+
+    if (snapshot.empty) {
+      commentsContainer.innerHTML = "<p class='text-gray-500'>Ainda não há comentários. Seja o primeiro!</p>";
+      return;
+    }
+
+    snapshot.forEach(async (docSnap) => {
+      const commentData = docSnap.data();
+      const commentId = docSnap.id;
+      const commentDate = commentData.createdAt?.seconds ? new Date(commentData.createdAt.seconds * 1000).toLocaleString('pt-BR') : '';
+      const isAuthor = currentUser && currentUser.uid === commentData.authorId;
+
+      let authorData = {};
+      if (commentData.authorId) {
+        try {
+          const authorDoc = await getDoc(doc(db, "usuarios", commentData.authorId));
+          if (authorDoc.exists()) {
+            authorData = authorDoc.data();
+          }
+        } catch (error) {
+          console.error(`Erro ao buscar autor do comentário ${commentId}:`, error);
+        }
       }
-      snapshot.forEach(doc => {
-        const commentData = doc.data();
-        const commentId = doc.id;
-        const commentEl = document.createElement('div');
-        commentEl.className = "flex items-start space-x-3";
-        const commentDate = commentData.createdAt?.seconds ? new Date(commentData.createdAt.seconds * 1000).toLocaleString('pt-BR') : '';
-        const isAuthor = currentUser && currentUser.uid === commentData.authorId;
-        
-        commentEl.innerHTML = `
-            <img src="${commentData.authorPhotoURL || 'https://placehold.co/50x50/a5b4fc/1e1b4b?text=??'}" alt="Foto do Utilizador" class="w-12 h-12 rounded-full border-2">
-            <div class="bg-gray-100 p-4 rounded-lg flex-1">
-                <div class="flex justify-between items-center mb-1">
-                    <p class="font-semibold text-indigo-700">${commentData.authorName || "Anónimo"}</p>
-                    <div class="flex items-center space-x-2">
-                        <p class="text-xs text-gray-500">${commentDate}</p>
-                        ${isAuthor ? `
-                        <div id="comment-menu-button-${commentId}" class="relative">
-                            <button onclick="toggleCommentMenu('${commentId}')" class="text-gray-500 hover:text-gray-800">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-                            </button>
-                            <div id="comment-menu-${commentId}" class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg z-20">
-                                <a href="#" onclick="event.preventDefault(); showEditCommentView('${commentId}')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Editar</a>
-                                <a href="#" onclick="event.preventDefault(); deleteComment('${commentId}')" class="block px-4 py-2 text-sm text-red-700 hover:bg-gray-100">Apagar</a>
-                            </div>
-                        </div>` : ''}
-                    </div>
+
+      const commentEl = document.createElement('div');
+      commentEl.className = "flex items-start space-x-3";
+
+      commentEl.innerHTML = `
+        <img src="${authorData.profileImageUrl || commentData.authorPhotoURL || 'https://placehold.co/50x50/a5b4fc/1e1b4b?text=??'}" alt="Foto do Utilizador" class="w-12 h-12 rounded-full border-2">
+        <div class="bg-gray-100 p-4 rounded-lg flex-1">
+            <div class="flex justify-between items-center mb-1">
+                <p class="font-semibold text-indigo-700">${authorData.nome || commentData.authorName || "Anônimo"}</p>
+                <div class="flex items-center space-x-2">
+                    <p class="text-xs text-gray-500">${commentDate}</p>
+                    ${isAuthor ? `
+                    <div id="comment-menu-button-${commentId}" class="relative">
+                        <button onclick="toggleCommentMenu('${commentId}')" class="text-gray-500 hover:text-gray-800">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                        </button>
+                        <div id="comment-menu-${commentId}" class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg z-20">
+                            <a href="#" onclick="event.preventDefault(); showEditCommentView('${commentId}')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Editar</a>
+                            <a href="#" onclick="event.preventDefault(); deleteComment('${commentId}')" class="block px-4 py-2 text-sm text-red-700 hover:bg-gray-100">Apagar</a>
+                        </div>
+                    </div>` : ''}
                 </div>
-                <p id="comment-text-${commentId}" class="text-gray-600 break-words">${commentData.text}</p>
-                <div id="comment-edit-form-${commentId}" class="hidden mt-2">
-                    <textarea id="comment-textarea-${commentId}" class="w-full p-2 border rounded-md">${commentData.text}</textarea>
-                    <div class="text-right mt-2 space-x-2">
-                        <button onclick="hideEditCommentView('${commentId}')" class="text-sm text-gray-600 hover:underline">Cancelar</button>
-                        <button onclick="updateComment('${commentId}')" class="text-sm bg-indigo-600 text-white py-1 px-3 rounded-md hover:bg-indigo-700">Salvar</button>
-                    </div>
+            </div>
+            <p id="comment-text-${commentId}" class="text-gray-600 break-words">${commentData.text}</p>
+            <div id="comment-edit-form-${commentId}" class="hidden mt-2">
+                <textarea id="comment-textarea-${commentId}" class="w-full p-2 border rounded-md">${commentData.text}</textarea>
+                <div class="text-right mt-2 space-x-2">
+                    <button onclick="hideEditCommentView('${commentId}')" class="text-sm text-gray-600 hover:underline">Cancelar</button>
+                    <button onclick="updateComment('${commentId}')" class="text-sm bg-indigo-600 text-white py-1 px-3 rounded-md hover:bg-indigo-700">Salvar</button>
                 </div>
-            </div>`;
-        commentsContainer.appendChild(commentEl);
-      });
+            </div>
+        </div>
+      `;
+      commentsContainer.appendChild(commentEl);
     });
-  }
+  });
+}
+
 
   async function adicionarComentario(postId) {
     if (!currentUser) {

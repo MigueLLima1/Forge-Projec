@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -141,17 +142,25 @@ onAuthStateChanged(auth, (user) => {
 
   // --- CARREGAR POSTS (FEED) ---
   async function carregarPosts() {
-    debugger
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(postsQuery);
     const container = document.getElementById("posts-wrapper");
     if (!container) return;
     container.innerHTML = ""; 
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const userId = data.userId;
-      const postId = doc.id;
+    for (const docSnapshot of snapshot.docs) {
+      const data = docSnapshot.data();
+      const userId = data.authorId;
+
+      const userDocRef = doc(db, "usuarios", userId);
+      const userDocSnap = await getDoc(userDocRef);
+      let userData = null;
+
+      if (userDocSnap.exists()) {
+        userData = userDocSnap.data();
+      }
+
+      const postId = docSnapshot.id;
       const article = document.createElement("article");
       article.className = "bg-white rounded-lg shadow mb-4";
       article.id = `post-${postId}`;
@@ -167,11 +176,11 @@ onAuthStateChanged(auth, (user) => {
         <div class="p-4">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center space-x-3">
-              <img src="${data.authorPhotoURL || 'https://placehold.co/40x40/a5b4fc/1e1b4b?text=??'}" alt="Avatar" class="w-10 h-10 rounded-full" />
+              <img src="${userData.profileImageUrl || 'https://placehold.co/40x40/a5b4fc/1e1b4b?text=??'}" alt="Avatar" class="w-10 h-10 rounded-full" />
               <div>
-                <span class="font-semibold text-gray-800">${data.authorName || "Usuário"}</span>
+                <span class="font-semibold text-gray-800">${userData.nome || "Usuário"}</span>
                 <p class="text-xs text-gray-500">${createdAt}</p>
-                <p class="text-xs text-gray-500">${data.authorUniversity || ""} - ${data.authorCourse || ""}</p>
+                <p class="text-xs text-gray-500">${userData.universidade || ""} - ${userData.curso || ""}</p>
               </div>
             </div>
           </div>
@@ -185,7 +194,7 @@ onAuthStateChanged(auth, (user) => {
         </div>
       `;
       container.appendChild(article);
-    });
+    }
   }
   
   
@@ -215,9 +224,9 @@ async function carregarAvatarHeader(userId) {
 
 
 
-
   
 </script>
+
 <body class="text-gray-800">
 
   <!-- Header -->
@@ -226,28 +235,42 @@ async function carregarAvatarHeader(userId) {
       <a href="#" class="text-2xl font-bold text-indigo-600">Forge Project</a>
       <!-- Barra de Pesquisa -->
       <div class="hidden sm:block relative w-1/3">
-        <input type="search" class="w-full py-2 px-4 pl-10 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Pesquisar no Forge...">
+        <input type="search"
+          class="w-full py-2 px-4 pl-10 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          placeholder="Pesquisar no Forge...">
         <div class="absolute top-0 left-0 mt-2 ml-3">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5 text-gray-400">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
         </div>
       </div>
       <nav class="hidden md:flex space-x-3 items-center">
         <!-- Botão para criar post, visível apenas quando logado -->
-        <a href="../post-blog/post-blog.html" id="create-post-header-button" class="hidden items-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300" title="Criar Novo Artigo">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Criar Post
+        <a href="../post-blog/post-blog.html" id="create-post-header-button"
+          class="hidden items-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300"
+          title="Criar Novo Artigo">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+              clip-rule="evenodd" />
+          </svg>
+          Criar Post
         </a>
         <!-- Links que mudam com base no login -->
-        <a href="../create-account/criarconta.html" id="create-account-link" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Criar Conta</a>
-        <a href="../login/login.html" id="login-link" class="text-indigo-600 hover:text-indigo-700 font-semibold py-2 px-4 rounded-lg border border-indigo-600 text-sm hover:border-indigo-700 transition duration-300">Login</a>
-        <a href="#" id="logout-button" class="hidden bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Logout</a>
-        
-        <a href="../profile/profile.html" class="text-gray-600 hover:text-indigo-600 transition duration-300" title="Meu Perfil">
-          <img id="header-profile-avatar" src="https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP" alt="Avatar do Utilizador" class="w-8 h-8 rounded-full border-2 border-transparent hover:border-indigo-500">
+        <a href="../create-account/criarconta.html" id="create-account-link"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Criar
+          Conta</a>
+        <a href="../login/login.html" id="login-link"
+          class="text-indigo-600 hover:text-indigo-700 font-semibold py-2 px-4 rounded-lg border border-indigo-600 text-sm hover:border-indigo-700 transition duration-300">Login</a>
+        <a href="#" id="logout-button"
+          class="hidden bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Logout</a>
+
+        <a href="../profile/profile.html" class="text-gray-600 hover:text-indigo-600 transition duration-300"
+          title="Meu Perfil">
+          <img id="header-profile-avatar" src="https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP"
+            alt="Avatar do Utilizador" class="w-8 h-8 rounded-full border-2 border-transparent hover:border-indigo-500">
         </a>
 
 
@@ -255,7 +278,8 @@ async function carregarAvatarHeader(userId) {
       <!-- Mobile Menu Button -->
       <div class="md:hidden">
         <button id="mobile-menu-button" class="text-gray-600 hover:text-indigo-600 focus:outline-none">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
@@ -263,13 +287,18 @@ async function carregarAvatarHeader(userId) {
     </div>
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="md:hidden hidden bg-white shadow-md">
-       <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Feed</a>
-       <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Notificações</a>
-       <a href="../profile/profile.html" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Perfil</a>
-       <a href="../post-blog/post-blog.html" id="mobile-create-post-button" class="hidden block px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Criar Post</a>
-       <a href="../create-account/criarconta.html" id="mobile-create-account-link" class="block px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Criar Conta</a>
-       <a href="../login/login.html" id="mobile-login-link" class="block px-6 py-3 text-indigo-600 hover:bg-indigo-50 font-semibold">Login</a>
-       <a href="#" id="mobile-logout-button" class="hidden block px-6 py-3 text-red-600 bg-red-50 hover:bg-red-100 font-semibold">Logout</a>
+      <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Feed</a>
+      <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Notificações</a>
+      <a href="../profile/profile.html"
+        class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Perfil</a>
+      <a href="../post-blog/post-blog.html" id="mobile-create-post-button"
+        class="hidden block px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Criar Post</a>
+      <a href="../create-account/criarconta.html" id="mobile-create-account-link"
+        class="block px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Criar Conta</a>
+      <a href="../create-account/criarconta.html" id="mobile-login-link"
+        class="block px-6 py-3 text-indigo-600 hover:bg-indigo-50 font-semibold">Login</a>
+      <a href="#" id="mobile-logout-button"
+        class="hidden block px-6 py-3 text-red-600 bg-red-50 hover:bg-red-100 font-semibold">Logout</a>
     </div>
   </header>
 
@@ -282,7 +311,8 @@ async function carregarAvatarHeader(userId) {
           <!-- Mini Perfil -->
           <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-right">
             <a href="../profile/profile.html" class="flex flex-col items-center text-center">
-              <img id="mini-profile-image" src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP" alt="Foto de Perfil do Utilizador" class="w-20 h-20 rounded-full mb-2 border-2 border-indigo-300">
+              <img id="mini-profile-image" src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP"
+                alt="Foto de Perfil do Utilizador" class="w-20 h-20 rounded-full mb-2 border-2 border-indigo-300">
               <h3 id="mini-profile-name" class="font-semibold text-lg text-gray-800">Meu Utilizador</h3>
             </a>
           </div>
@@ -291,31 +321,47 @@ async function carregarAvatarHeader(userId) {
           <nav class="bg-white p-4 rounded-lg shadow" data-aos="fade-right" data-aos-delay="100">
             <ul class="space-y-2">
               <li class="relative">
-                  <div class="filter blur-sm opacity-50 pointer-events-none">
-                      <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md font-medium"><i class="fas fa-home fa-fw w-5"></i><span>Feed</span></a>
-                  </div>
-                  <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em breve</span>
+                <div class="filter blur-sm opacity-50 pointer-events-none">
+                  <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md font-medium"><i
+                      class="fas fa-home fa-fw w-5"></i><span>Feed</span></a>
+                </div>
+                <span
+                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em
+                  breve</span>
               </li>
               <li class="relative">
-                  <div class="filter blur-sm opacity-50 pointer-events-none">
-                      <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md"><i class="fas fa-bell fa-fw w-5"></i><span>Notificações</span></a>
-                  </div>
-                  <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em breve</span>
+                <div class="filter blur-sm opacity-50 pointer-events-none">
+                  <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md"><i
+                      class="fas fa-bell fa-fw w-5"></i><span>Notificações</span></a>
+                </div>
+                <span
+                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em
+                  breve</span>
               </li>
               <li class="relative">
-                  <div class="filter blur-sm opacity-50 pointer-events-none">
-                      <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md"><i class="fas fa-envelope fa-fw w-5"></i><span>Mensagens</span></a>
-                  </div>
-                  <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em breve</span>
+                <div class="filter blur-sm opacity-50 pointer-events-none">
+                  <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md"><i
+                      class="fas fa-envelope fa-fw w-5"></i><span>Mensagens</span></a>
+                </div>
+                <span
+                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em
+                  breve</span>
               </li>
               <li class="relative">
-                  <div class="filter blur-sm opacity-50 pointer-events-none">
-                      <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md"><i class="fas fa-bookmark fa-fw w-5"></i><span>Guardados</span></a>
-                  </div>
-                  <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em breve</span>
+                <div class="filter blur-sm opacity-50 pointer-events-none">
+                  <a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md"><i
+                      class="fas fa-bookmark fa-fw w-5"></i><span>Guardados</span></a>
+                </div>
+                <span
+                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Em
+                  breve</span>
               </li>
-              <li><a href="../profile/profile.html" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-user-circle fa-fw w-5"></i><span>Meu Perfil</span></a></li>
-              <li><a href="../sett1ngs/settings.html" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-cog fa-fw w-5"></i><span>Configurações</span></a></li>
+              <li><a href="../profile/profile.html"
+                  class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i
+                    class="fas fa-user-circle fa-fw w-5"></i><span>Meu Perfil</span></a></li>
+              <li><a href="../sett1ngs/settings.html"
+                  class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i
+                    class="fas fa-cog fa-fw w-5"></i><span>Configurações</span></a></li>
             </ul>
           </nav>
         </aside>
@@ -323,7 +369,7 @@ async function carregarAvatarHeader(userId) {
         <!-- Coluna Central: Feed de Posts -->
         <section class="col-span-12 lg:col-span-6 space-y-4">
           <div id="posts-wrapper" class="space-y-4">
-              <!-- Posts são carregados aqui dinamicamente -->
+            <!-- Posts são carregados aqui dinamicamente -->
           </div>
         </section>
 
@@ -332,10 +378,14 @@ async function carregarAvatarHeader(userId) {
           <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-left">
             <h3 class="text-lg font-semibold text-gray-800 mb-3">Tópicos em Alta</h3>
             <ul class="space-y-1">
-              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#InovacaoAcademica</a> <span class="text-xs text-gray-400">(1.2k posts)</span></li>
-              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#VidaUniversitaria</a> <span class="text-xs text-gray-400">(870 posts)</span></li>
-              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#ForgeProjectIdeias</a> <span class="text-xs text-gray-400">(500 posts)</span></li>
-              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#CienciaDeDados</a> <span class="text-xs text-gray-400">(410 posts)</span></li>
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#InovacaoAcademica</a> <span
+                  class="text-xs text-gray-400">(1.2k posts)</span></li>
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#VidaUniversitaria</a> <span
+                  class="text-xs text-gray-400">(870 posts)</span></li>
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#ForgeProjectIdeias</a> <span
+                  class="text-xs text-gray-400">(500 posts)</span></li>
+              <li><a href="#" class="text-sm text-indigo-600 hover:underline">#CienciaDeDados</a> <span
+                  class="text-xs text-gray-400">(410 posts)</span></li>
             </ul>
           </div>
         </aside>
@@ -362,17 +412,21 @@ async function carregarAvatarHeader(userId) {
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
     document.getElementById('currentYear').textContent = new Date().getFullYear();
-    AOS.init({ duration: 600, once: true });
+    AOS.init({
+      duration: 600,
+      once: true
+    });
 
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
     if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-        mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
-        });
+      mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+      });
     }
   </script>
 
 </body>
+
 </html>

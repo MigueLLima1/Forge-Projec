@@ -3,39 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Criar Conta - Forge Blog</title>
+  <title>Criar Conta - Forge Project</title>
   <!-- Incluindo Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Favicon (substitua pelo seu, igual ao da landing page) -->
-  <link rel="icon" href="https://placehold.co/32x32/6366f1/white?text=FB" type="image/png">
-  <!-- Incluindo AOS CSS (opcional para esta página, mas mantido para consistência se quiser usar) -->
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <!-- Link para o seu ficheiro CSS externo (o mesmo da landing page) -->
-  <link rel="stylesheet" href="/Forge-Project V2/src/app/pages/create-account/criarconta.css"> <!-- Ajuste o caminho se necessário -->
+  <!-- Favicon -->
+  <link rel="icon" href="https://placehold.co/32x32/6366f1/white?text=FP" type="image/png">
+  <style>
+    /* Estilos para garantir que o layout ocupe a altura total da tela */
+    html, body {
+        height: 100%;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+    main {
+        flex-grow: 1;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+<body class="bg-gray-100 text-gray-800">
 
   <!-- Header Simplificado -->
   <header class="bg-white shadow-md w-full z-10">
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-      <a href="../../index.html" class="text-2xl font-bold text-indigo-600">Forge Blog</a>
-      <a href="../../index.html" class="text-gray-600 hover:text-indigo-600 transition duration-300">Voltar ao Início</a>
+      <a href="../main-page/main-page.html" class="text-2xl font-bold text-indigo-600">Forge Project</a>
     </div>
   </header>
 
   <!-- Conteúdo Principal -->
-  <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <main class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Crie a sua conta
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-          Junte-se à comunidade Forge Blog!
+          Junte-se à nossa comunidade!
         </p>
       </div>
       <form id="form-cadastro" class="mt-8 space-y-6">
-        <input type="hidden" name="remember" value="true">
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
             <label for="name" class="sr-only">Nome Completo</label>
@@ -53,53 +60,64 @@
             <label for="password" class="sr-only">Senha</label>
             <input id="password" name="password" type="password" autocomplete="new-password" required
                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                   placeholder="Senha">
+                   placeholder="Senha (mínimo 8 caracteres)">
           </div>
-          <div>
+           <div>
             <label for="confirm-password" class="sr-only">Confirmar Senha</label>
             <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required
                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                    placeholder="Confirmar Senha">
           </div>
-           <div>
-            <label for="dob" class="sr-only">Data de Nascimento</label>
-            <input id="dob" name="dob" type="date" required
-                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                   placeholder="Data de Nascimento">
-          </div>
-           <div>
-            <label for="gender" class="sr-only">Sexo</label>
-            <select id="gender" name="gender" required
+           <!-- Campo Tipo de Conta -->
+          <div>
+            <label for="account-type" class="sr-only">Tipo de Conta</label>
+            <select id="account-type" name="account-type" required
                     class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-              <option value="" disabled selected>Selecione o Sexo</option>
-              <option value="male">Masculino</option>
-              <option value="female">Feminino</option>
-              <option value="other">Outro</option>
+              <option value="" disabled selected>Selecione o tipo de conta</option>
+              <option value="aluno">Aluno</option>
+              <option value="professor">Professor</option>
+              <option value="empregador">Empregador</option>
             </select>
           </div>
-           <div>
-            <label for="university" class="sr-only">Universidade</label>
-            <select id="university" name="university" required
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-              <option value="" disabled selected>Selecione a Universidade</option>
-              <option value="ceub">CEUB</option>
-              <option value="iesb">IESB</option>
-              <option value="catolica">Católica</option>
-              <!-- Adicionar mais opções conforme necessário -->
-            </select>
+          <!-- Campos que dependem do tipo de conta (serão mostrados/ocultos via JS) -->
+          <div id="student-professor-fields" class="hidden">
+              <div>
+                <label for="university" class="sr-only">Universidade</label>
+                <select id="university" name="university"
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                  <option value="" disabled selected>Selecione a Universidade</option>
+                  <option value="ceub">CEUB</option>
+                  <option value="iesb">IESB</option>
+                  <option value="catolica">Católica</option>
+                </select>
+              </div>
+              <div >
+                <label for="course" class="sr-only">Curso</label>
+                <select id="course" name="course"
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                  <option value="" disabled selected>Selecione o Curso</option>
+                  <option value="ads">Análise e Desenvolvimento de Sistemas</option>
+                  <option value="cc">Ciência da Computação</option>
+                  <option value="cd">Ciência de Dados</option>
+                  <option value="ec">Engenharia da Computação</option>
+                  <option value="es">Engenharia de Software</option>
+                </select>
+              </div>
+          </div>
+          <!-- Campo para Empregador -->
+          <div id="employer-fields" class="hidden">
+             <div>
+                <label for="company-name" class="sr-only">Nome da Empresa</label>
+                <input id="company-name" name="company-name" type="text"
+                       class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                       placeholder="Nome da Empresa">
+              </div>
           </div>
           <div>
-            <label for="course" class="sr-only">Curso</label>
-            <select id="course" name="course" required
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-              <option value="" disabled selected>Selecione o Curso</option>
-              <option value="ads">Análise e Desenvolvimento de Sistemas</option>
-              <option value="cc">Ciência da Computação</option>
-              <option value="cd">Ciência de Dados</option>
-              <option value="ec">Engenharia da Computação</option>
-              <option value="es">Engenharia de Software</option>
-              <!-- Adicionar mais opções conforme necessário -->
-            </select>
+            <label for="dob" class="sr-only">Data de Nascimento</label>
+            <input id="dob" name="dob" type="date" required
+                   class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                   placeholder="Data de Nascimento">
           </div>
         </div>
 
@@ -122,117 +140,96 @@
   </main>
 
   <!-- Footer Simplificado -->
-  <footer class="bg-gray-800 text-gray-300 py-8 mt-auto">
+  <footer class="bg-gray-800 text-gray-300 py-8">
     <div class="container mx-auto px-6 text-center">
-      <p>&copy; <span id="currentYearFooter"></span> Forge Blog. Todos os direitos reservados.</p>
+      <p>&copy; <span id="currentYearFooter"></span> Forge Project. Todos os direitos reservados.</p>
     </div>
   </footer>
 
-  <!-- Script Firebase + Cadastro (mesmo do seu ficheiro original) -->
+  <!-- Script Firebase + Cadastro -->
   <script type="module">
-    // Importações via CDN (garanta que as versões são compatíveis ou as mais recentes estáveis)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"; // Usando versão do seu script original
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-    // Sua configuração do Firebase (mantida do seu script original)
-    // IMPORTANTE: NUNCA exponha chaves de API secretas no lado do cliente se elas concederem acesso privilegiado.
-    // Para autenticação e firestore no lado do cliente, a apiKey é geralmente segura, mas configure regras de segurança robustas no Firebase.
     const firebaseConfig = {
-      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg", // Considere usar variáveis de ambiente se possível em produção real
+      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
       authDomain: "forge-projectv2.firebaseapp.com",
       projectId: "forge-projectv2",
-      storageBucket: "forge-projectv2.appspot.com", // Corrigido: .appspot.com é o padrão para storageBucket
+      storageBucket: "forge-projectv2.appspot.com",
       messagingSenderId: "277144452911",
       appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
     };
 
-    // Inicialização dos serviços Firebase
-    let app, auth, db;
-    try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-    } catch (error) {
-        console.error("Erro ao inicializar Firebase:", error);
-        // Adicionar feedback visual para o usuário aqui, se a inicialização falhar
-        alert("Ocorreu um erro ao carregar a página. Tente novamente mais tarde.");
-    }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const accountTypeSelect = document.getElementById('account-type');
+    const studentProfessorFields = document.getElementById('student-professor-fields');
+    const employerFields = document.getElementById('employer-fields');
+
+    // Mostra/oculta campos com base no tipo de conta
+    accountTypeSelect.addEventListener('change', (e) => {
+        const type = e.target.value;
+        studentProfessorFields.classList.toggle('hidden', type !== 'aluno' && type !== 'professor');
+        employerFields.classList.toggle('hidden', type !== 'empregador');
+    });
     
+    document.getElementById("form-cadastro").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    // Evento de cadastro
-    const formCadastro = document.getElementById("form-cadastro");
-    if (formCadastro) {
-        formCadastro.addEventListener("submit", async (e) => {
-          e.preventDefault();
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("password").value;
+      const confirmarSenha = document.getElementById("confirm-password").value;
+      const nome = document.getElementById("name").value;
+      const dob = document.getElementById("dob").value;
+      const tipoDeConta = document.getElementById("account-type").value;
 
-          const email = document.getElementById("email").value;
-          const senha = document.getElementById("password").value;
-          const confirmar = document.getElementById("confirm-password").value;
+      if (senha !== confirmarSenha) {
+          alert("As senhas não coincidem.");
+          return;
+      }
+      
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+        const user = userCredential.user;
 
-          const nome = document.getElementById("name").value;
-          const dob = document.getElementById("dob").value;
-          const sexo = document.getElementById("gender").value;
-          const universidade = document.getElementById("university").value;
-          const curso = document.getElementById("course").value;
-
-          if (senha !== confirmar) {
-            // TODO: Substituir alert por uma mensagem de erro no formulário
-            alert("As senhas não coincidem.");
-            return;
-          }
-
-          if (!auth || !db) {
-            alert("Erro na configuração do sistema. Tente novamente mais tarde.");
-            return;
-          }
-
-          try {
-            // Cria usuário na autenticação
-            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-            const uid = userCredential.user.uid;
-
-            // Salva os dados do perfil no Firestore
-            // Caminho da coleção: users/{userId} - como na sua landing page.
-            // Se quiser uma coleção específica para dados de perfil: "perfisUsuarios" ou similar.
-            // Para manter consistência com a sugestão de `setDoc(doc(db, "usuarios", uid), ...)`
-            // A coleção será "usuarios".
-            await setDoc(doc(db, "usuarios", uid), {
-              nome,
-              email,
-              dataNascimento: dob,
-              sexo,
-              universidade,
-              curso,
-              criadoEm: new Date().toISOString() // Salvar como ISO string é uma boa prática
-            });
-
-            // TODO: Substituir alert por uma mensagem de sucesso e talvez redirecionamento
-            alert("Usuário cadastrado com sucesso!");
-            // Opcional: Limpar o formulário
-            e.target.reset(); 
-            // Opcional: Redirecionar para login ou painel principal
-            // window.location.href = "../login/login.html"; 
-          } catch (error) {
-            console.error("Erro ao cadastrar usuário:", error);
-            // TODO: Substituir alert por uma mensagem de erro específica no formulário
-            // Mapear códigos de erro do Firebase para mensagens amigáveis se desejar
-            // Ex: if (error.code === 'auth/email-already-in-use') { alert("Este email já está cadastrado.") }
-            alert("Erro ao cadastrar: " + error.message);
-          }
+        // Atualiza o perfil de autenticação do Firebase com o nome
+        await updateProfile(user, {
+            displayName: nome
         });
-    } else {
-        console.error("Elemento form-cadastro não encontrado.");
-    }
-    
-    // Script para o ano atual no footer
-    const currentYearFooter = document.getElementById('currentYearFooter');
-    if (currentYearFooter) {
-        currentYearFooter.textContent = new Date().getFullYear();
-    }
 
-    // Inicializa o AOS (opcional, se for usar animações nesta página)
-    // AOS.init(); 
+        // Prepara os dados para guardar no Firestore
+        const userData = {
+          nome,
+          email,
+          tipoDeConta,
+          dataNascimento: dob,
+          criadoEm: new Date().toISOString()
+        };
+
+        // Adiciona campos condicionais
+        if (tipoDeConta === 'aluno' || tipoDeConta === 'professor') {
+            userData.universidade = document.getElementById("university").value;
+            userData.curso = document.getElementById("course").value;
+        } else if (tipoDeConta === 'empregador') {
+            userData.nomeEmpresa = document.getElementById("company-name").value;
+        }
+
+        // Guarda os dados na coleção 'usuarios'
+        await setDoc(doc(db, "usuarios", user.uid), userData);
+
+        alert("Utilizador registado com sucesso!");
+        e.target.reset();
+        window.location.href = "../login/login.html"; // Redireciona para o login
+      } catch (error) {
+        console.error("Erro ao registar utilizador:", error);
+        alert("Erro ao registar: " + error.message);
+      }
+    });
+
+    document.getElementById('currentYearFooter').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>

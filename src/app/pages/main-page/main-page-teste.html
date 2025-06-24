@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forge Project - Feed</title>
+  <!-- Incluindo Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <!-- Incluindo AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5;
+    }
+    /* Estilo para a animação do modal */
+    #create-post-modal.hidden, #create-post-dropdown.hidden, #loading-spinner.hidden, #main-content.hidden {
+        display: none;
+    }
+  </style>
+</head>
+<script type="module">
+  // --- MÓDULOS FIREBASE ---
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+  // --- CONFIGURAÇÃO FIREBASE ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+    authDomain: "forge-projectv2.firebaseapp.com",
+    projectId: "forge-projectv2",
+    storageBucket: "forge-projectv2.appspot.com",
+    messagingSenderId: "277144452911",
+    appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+  };
+
+  // --- INICIALIZAÇÃO DOS SERVIÇOS ---
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  let currentUser = null;
+
+  // --- FUNÇÃO PARA OBTER O CRACHÁ DO TIPO DE CONTA ---
+  function getIconForAccountType(accountType) {
+    let iconClass, text, badgeClasses;
+    const type = typeof accountType === 'string' ? accountType.trim() : '';
+
+    switch (type) {
+      case 'aluno':
+        iconClass = 'fa-user-graduate';
+        text = 'Aluno';
+        badgeClasses = 'bg-indigo-600 text-white';
+        break;
+      case 'professor':
+        iconClass = 'fa-chalkboard-teacher';
+        text = 'Professor';
+        badgeClasses = 'bg-green-600 text-white';
+        break;
+      case 'empregador':
+        iconClass = 'fa-briefcase';
+        text = 'Empregador';
+        badgeClasses = 'bg-blue-600 text-white';
+        break;
+      default:
+        iconClass = 'fa-user';
+        text = 'Utilizador';
+        badgeClasses = 'bg-gray-500 text-white';
+        break;
+    }
+
+    return `<span class="inline-flex items-center align-middle px-2 py-0.5 rounded-md text-xs font-medium ${badgeClasses} ml-2">
+              <i class="fas ${iconClass} mr-1.5"></i>
+              ${text}
+            </span>`;
+  }
+
+  // --- LÓGICA DE AUTENTICAÇÃO ---
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    const elements = {
+      loginLink: document.getElementById('login-link'),
+      createAccountLink: document.getElementById('create-account-link'),
+      logoutButton: document.getElementById('logout-button'),
+      createPostDropdownContainer: document.getElementById('create-post-dropdown-container'),
+      mobileLoginLink: document.getElementById('mobile-login-link'),
+      mobileCreateAccountLink: document.getElementById('mobile-create-account-link'),
+      mobileLogoutButton: document.getElementById('mobile-logout-button'),
+      mobileCreatePostButton: document.getElementById('mobile-create-post-button'),
+      mobileCreateArticleLink: document.getElementById('mobile-create-article-link')
+    };
+
+    const loadingPromises = [];
+
+    if (user) {
+      elements.loginLink?.classList.add('hidden');
+      elements.createAccountLink?.classList.add('hidden');
+      elements.logoutButton?.classList.remove('hidden');
+      elements.createPostDropdownContainer?.classList.remove('hidden');
+      elements.mobileLoginLink?.classList.add('hidden');
+      elements.mobileCreateAccountLink?.classList.add('hidden');
+      elements.mobileLogoutButton?.classList.remove('hidden');
+      elements.mobileCreatePostButton?.classList.remove('hidden');
+      elements.mobileCreateArticleLink?.classList.remove('hidden');
+
+      loadingPromises.push(carregarMiniPerfil(user.uid));
+      loadingPromises.push(carregarFotoPerfilHeader(user.uid));
+    } else {
+      elements.loginLink?.classList.remove('hidden');
+      elements.createAccountLink?.classList.remove('hidden');
+      elements.logoutButton?.classList.add('hidden');
+      elements.createPostDropdownContainer?.classList.add('hidden');
+      elements.mobileLoginLink?.classList.remove('hidden');
+      elements.mobileCreateAccountLink?.classList.remove('hidden');
+      elements.mobileLogoutButton?.classList.add('hidden');
+      elements.mobileCreatePostButton?.classList.add('hidden');
+      elements.mobileCreateArticleLink?.classList.add('hidden');
+
+      const profileNameEl = document.getElementById('mini-profile-name');
+      const accountTypeIconEl = document.getElementById('mini-profile-account-icon');
+      if(profileNameEl) profileNameEl.textContent = "Meu Utilizador";
+      if(accountTypeIconEl) accountTypeIconEl.innerHTML = getIconForAccountType();
+    }
+    
+    loadingPromises.push(carregarPosts());
+
+    // Espera que todos os dados sejam carregados
+    await Promise.all(loadingPromises);
+
+    // Esconde o spinner e mostra o conteúdo principal
+    document.getElementById('loading-spinner')?.classList.add('hidden');
+    document.getElementById('main-content')?.classList.remove('hidden');
+  });
+
+  // --- CARREGAR DADOS DO PERFIL ---
+  async function carregarMiniPerfil(userId) {
+    if (!userId) return;
+    try {
+      const userDocRef = doc(db, "usuarios", userId);
+      const userSnap = await getDoc(userDocRef);
+      const profileImageEl = document.getElementById('mini-profile-image');
+      const profileNameEl = document.getElementById('mini-profile-name');
+      const accountTypeIconEl = document.getElementById('mini-profile-account-icon');
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        if (profileImageEl) profileImageEl.src = userData.profileImageUrl || 'https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP';
+        if (profileNameEl) profileNameEl.textContent = userData.nome || "Meu Utilizador";
+        if (accountTypeIconEl) accountTypeIconEl.innerHTML = getIconForAccountType(userData.tipoDeConta);
+      } else {
+        if (profileImageEl) profileImageEl.src = 'https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP';
+        if (profileNameEl) profileNameEl.textContent = "Meu Utilizador";
+        if (accountTypeIconEl) accountTypeIconEl.innerHTML = getIconForAccountType();
+      }
+    } catch (error) {
+      console.error("Erro ao carregar mini perfil:", error);
+    }
+  }
+
+  async function carregarFotoPerfilHeader(userId) {
+    const headerAvatar = document.getElementById('header-profile-avatar');
+    if (!headerAvatar) return;
+    try {
+      const userDocRef = doc(db, "usuarios", userId);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        headerAvatar.src = userData.profileImageUrl || 'https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP';
+      }
+    } catch (error) {
+      console.error("Erro ao carregar foto do perfil:", error);
+    }
+  }
+
+  // --- FUNÇÃO DE LOGOUT ---
+  function handleLogout() {
+    signOut(auth).catch((error) => console.error('Erro ao fazer logout:', error));
+  }
+
+  function setupLogoutButtons() {
+    document.getElementById('logout-button')?.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+    document.getElementById('mobile-logout-button')?.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+  }
+
+  // --- CARREGAR POSTS (FEED) ---
+  async function carregarPosts() {
+    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(postsQuery);
+    const container = document.getElementById("posts-wrapper");
+    if (!container) return;
+    container.innerHTML = "";
+
+    for (const docSnapshot of snapshot.docs) {
+      const data = docSnapshot.data();
+      const userId = data.authorId;
+      let userData = {};
+
+      try {
+        if (userId) {
+          const userDocRef = doc(db, "usuarios", userId);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) userData = userDocSnap.data();
+        }
+      } catch (e) {
+        console.error("Erro ao buscar dados do autor do post:", e);
+      }
+
+      const postId = docSnapshot.id;
+      const article = document.createElement("article");
+      article.className = "bg-white rounded-lg shadow mb-4";
+      article.id = `post-${postId}`;
+      
+      const postTitle = data.title || data.titulo; // Verifica ambos 'title' e 'titulo'
+      const isSimplePost = !postTitle; // Considera um post simples se não tiver título
+      
+      const createdAt = data.createdAt?.seconds ? new Date(data.createdAt.seconds * 1000).toLocaleString('pt-BR') : "Data indisponível";
+      const content = data.contentHTML || "";
+      const truncatedContent = content.length > 200 ? content.substring(0, 200) + '...' : content;
+      const accountBadge = getIconForAccountType(userData.tipoDeConta);
+
+      article.innerHTML = `
+        <div class="p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-3">
+              <img src="${userData.profileImageUrl || 'https://placehold.co/40x40/a5b4fc/1e1b4b?text=??'}" alt="Avatar" class="w-10 h-10 rounded-full" />
+              <div>
+                <div class="flex items-center">
+                  <span class="font-semibold text-gray-800">${userData.nome || "Utilizador"}</span>
+                  ${accountBadge}
+                </div>
+                <p class="text-xs text-gray-500">${createdAt}</p>
+                <p class="text-xs text-gray-500">${userData.universidade || ""} - ${userData.curso || ""}</p>
+              </div>
+            </div>
+          </div>
+          ${isSimplePost ? '' : `<h2 class="text-xl font-bold text-gray-800 mb-2">${postTitle}</h2>`}
+          <div class="text-gray-700 leading-relaxed">${isSimplePost ? content : truncatedContent}</div>
+        </div>
+        ${isSimplePost ? '' : `
+        <div class="px-4 py-3 border-t border-gray-100 flex justify-end">
+          <a href="../blog-page/blog-page.html?id=${postId}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">
+            Ver post completo
+          </a>
+        </div>`}
+      `;
+      container.appendChild(article);
+    }
+  }
+
+  // --- GESTÃO DO MODAL E DROPDOWN DE CRIAÇÃO ---
+  function setupCreationUI() {
+    const modal = document.getElementById('create-post-modal');
+    const openModalButton = document.getElementById('open-modal-button');
+    const mobileOpenModalButton = document.getElementById('mobile-create-post-button');
+    const closeModalButton = document.getElementById('close-modal-button');
+    const postForm = document.getElementById('create-post-form');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const dropdownButton = document.getElementById('create-post-dropdown-button');
+    const dropdown = document.getElementById('create-post-dropdown');
+
+    // Dropdown Logic
+    if(dropdownButton && dropdown){
+      dropdownButton.addEventListener('click', () => {
+        dropdown.classList.toggle('hidden');
+      });
+      // Fecha o dropdown se clicar fora
+      window.addEventListener('click', function(e) {
+        if (!dropdownButton.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    // Modal Logic
+    const openModal = (e) => {
+      e.preventDefault(); 
+      if(modal) modal.classList.remove('hidden');
+      if(dropdown) dropdown.classList.add('hidden');
+    };
+    
+    if(openModalButton) openModalButton.addEventListener('click', openModal);
+    if(mobileOpenModalButton) mobileOpenModalButton.addEventListener('click', openModal);
+
+    const closeModal = () => {
+        if(modal) modal.classList.add('hidden');
+    }
+
+    if(closeModalButton) closeModalButton.addEventListener('click', closeModal);
+    if(modalOverlay) modalOverlay.addEventListener('click', closeModal);
+
+    if(postForm) {
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const textarea = document.getElementById('post-content-textarea');
+            const content = textarea.value.trim();
+
+            if (!content) {
+                alert("O conteúdo não pode estar vazio.");
+                return;
+            }
+            if (!currentUser) {
+                alert("Você precisa estar logado para publicar.");
+                return;
+            }
+            try {
+                await addDoc(collection(db, "posts"), {
+                    authorId: currentUser.uid,
+                    contentHTML: content,
+                    title: "", // Título vazio para posts simples
+                    createdAt: serverTimestamp()
+                });
+                textarea.value = "";
+                closeModal();
+                await carregarPosts();
+            } catch (error) {
+                console.error("Erro ao criar post:", error);
+                alert("Ocorreu um erro ao publicar. Tente novamente.");
+            }
+        });
+    }
+  }
+
+  // --- INICIALIZAÇÃO DA PÁGINA ---
+  document.addEventListener('DOMContentLoaded', () => {
+    setupLogoutButtons();
+    setupCreationUI();
+  });
+</script>
+
+<body class="text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md fixed w-full z-20">
+    <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+      <a href="#" class="text-2xl font-bold text-indigo-600">Forge Project</a>
+      <div class="hidden sm:block relative w-1/3">
+        <input type="search" class="w-full py-2 px-4 pl-10 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Pesquisar no Forge...">
+        <div class="absolute top-0 left-0 mt-2 ml-3">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </div>
+      </div>
+      <nav class="hidden md:flex space-x-3 items-center">
+        <!-- Botão Dropdown para Criar Post -->
+        <div id="create-post-dropdown-container" class="relative hidden">
+            <button id="create-post-dropdown-button" class="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Criar Post
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div id="create-post-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-30">
+              <a href="#" id="open-modal-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Post Normal</a>
+              <a href="../post-blog/post-blog.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Artigo de Blog</a>
+            </div>
+        </div>
+        <!-- Links que mudam com base no login -->
+        <a href="../create-account/criarconta.html" id="create-account-link" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Criar Conta</a>
+        <a href="../login/login.html" id="login-link" class="text-indigo-600 hover:text-indigo-700 font-semibold py-2 px-4 rounded-lg border border-indigo-600 text-sm hover:border-indigo-700 transition duration-300">Login</a>
+        <a href="#" id="logout-button" class="hidden bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-300">Logout</a>
+        <a href="../profile/profile.html" class="text-gray-600 hover:text-indigo-600 transition duration-300" title="Meu Perfil">
+          <img id="header-profile-avatar" src="https://placehold.co/32x32/a5b4fc/1e1b4b?text=MP" alt="Avatar do Utilizador" class="w-8 h-8 rounded-full border-2 border-transparent hover:border-indigo-500">
+        </a>
+      </nav>
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button id="mobile-menu-button" class="text-gray-600 hover:text-indigo-600 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white shadow-md">
+      <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Feed</a>
+      <a href="#" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Notificações</a>
+      <a href="../profile/profile.html" class="block px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">Perfil</a>
+      <button id="mobile-create-post-button" class="hidden w-full text-left px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Post Normal</button>
+      <a href="../post-blog/post-blog.html" id="mobile-create-article-link" class="hidden block px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Artigo de Blog</a>
+      <a href="../create-account/criarconta.html" id="mobile-create-account-link" class="block px-6 py-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-semibold">Criar Conta</a>
+      <a href="../login/login.html" id="mobile-login-link" class="block px-6 py-3 text-indigo-600 hover:bg-indigo-50 font-semibold">Login</a>
+      <a href="#" id="mobile-logout-button" class="hidden block px-6 py-3 text-red-600 bg-red-50 hover:bg-red-100 font-semibold">Logout</a>
+    </div>
+  </header>
+
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 flex items-center justify-center bg-gray-100 z-50">
+      <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <main id="main-content" class="pt-20 bg-gray-100 min-h-screen hidden">
+    <div class="container mx-auto px-2 sm:px-4 py-6">
+      <div class="grid grid-cols-12 gap-4">
+
+        <!-- Coluna Esquerda -->
+        <aside class="hidden lg:block col-span-3 space-y-4">
+          <!-- Mini Perfil -->
+          <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-right">
+            <a href="../profile/profile.html" class="flex flex-col items-center text-center">
+              <img id="mini-profile-image" src="https://placehold.co/80x80/a5b4fc/1e1b4b?text=MP" alt="Foto de Perfil do Utilizador" class="w-20 h-20 rounded-full mb-2 border-2 border-indigo-300">
+              <div class="flex items-center">
+                  <h3 id="mini-profile-name" class="font-semibold text-lg text-gray-800">Meu Utilizador</h3>
+                  <span id="mini-profile-account-icon"></span>
+              </div>
+            </a>
+          </div>
+          <!-- Navegação Principal -->
+          <nav class="bg-white p-4 rounded-lg shadow" data-aos="fade-right" data-aos-delay="100">
+            <ul class="space-y-2">
+              <li><a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md font-medium"><i class="fas fa-home fa-fw w-5"></i><span>Feed</span></a></li>
+              <li><a href="#" class="flex items-center space-x-3 text-gray-700 p-2 rounded-md"><i class="fas fa-bell fa-fw w-5"></i><span>Notificações</span></a></li>
+              <li><a href="../profile/profile.html" class="flex items-center space-x-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 p-2 rounded-md"><i class="fas fa-user-circle fa-fw w-5"></i><span>Meu Perfil</span></a></li>
+            </ul>
+          </nav>
+        </aside>
+
+        <!-- Coluna Central: Feed de Posts -->
+        <section class="col-span-12 lg:col-span-6 space-y-4">
+          <div id="posts-wrapper" class="space-y-4">
+            <!-- Posts são carregados aqui dinamicamente -->
+          </div>
+        </section>
+
+        <!-- Coluna Direita -->
+        <aside class="hidden lg:block col-span-3 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow" data-aos="fade-left">
+              <h3 class="text-lg font-semibold text-gray-800 mb-3">Tópicos em Alta</h3>
+              <ul class="space-y-1">
+                <li><a href="#" class="text-sm text-indigo-600 hover:underline">#InovacaoAcademica</a> <span class="text-xs text-gray-400">(1.2k posts)</span></li>
+                <li><a href="#" class="text-sm text-indigo-600 hover:underline">#VidaUniversitaria</a> <span class="text-xs text-gray-400">(870 posts)</span></li>
+                <li><a href="#" class="text-sm text-indigo-600 hover:underline">#ForgeProjectIdeias</a> <span class="text-xs text-gray-400">(500 posts)</span></li>
+                <li><a href="#" class="text-sm text-indigo-600 hover:underline">#CienciaDeDados</a> <span class="text-xs text-gray-400">(410 posts)</span></li>
+              </ul>
+            </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white text-gray-500 py-6 border-t border-gray-200 mt-auto">
+    <div class="container mx-auto px-6 text-center">
+      <div class="flex justify-center space-x-4 mb-2">
+        <a href="#" class="hover:text-indigo-600 text-sm">Sobre</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Privacidade</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Termos</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Cookies</a>
+        <a href="#" class="hover:text-indigo-600 text-sm">Ajuda</a>
+      </div>
+      <p class="text-sm">&copy; <span id="currentYear"></span> Forge Project. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  
+  <!-- Modal de Criação de Post -->
+  <div id="create-post-modal" class="hidden fixed inset-0 z-30 flex items-center justify-center">
+      <!-- Overlay -->
+      <div id="modal-overlay" class="absolute inset-0 bg-gray-900 bg-opacity-50"></div>
+      <!-- Conteúdo do Modal -->
+      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg z-40" data-aos="fade-up">
+          <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold text-gray-800">Criar Publicação</h2>
+              <button id="close-modal-button" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+          </div>
+          <form id="create-post-form">
+              <textarea id="post-content-textarea" class="w-full h-32 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="No que você está a pensar?"></textarea>
+              <div class="flex justify-end mt-4">
+                  <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">Publicar</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+
+  <!-- Scripts Finais -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentYearEl = document.getElementById('currentYear');
+      if (currentYearEl) {
+        currentYearEl.textContent = new Date().getFullYear();
+      }
+      
+      AOS.init({
+        duration: 600,
+        once: true
+      });
+
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        mobileMenu.querySelectorAll('a, button').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

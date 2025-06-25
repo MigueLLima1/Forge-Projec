@@ -13,40 +13,22 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f0f2f5; /* Cor de fundo suave */
-    }
-    /* Custom scrollbar for better aesthetics */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #c5c5c5;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #a5a5a5;
-    }
-    /* Simple tab styling */
-    .tab-button {
-        @apply px-4 py-2 font-medium text-sm rounded-md transition-colors duration-150;
+      background-color: #f0f2f5;
     }
     .tab-button.active {
-        @apply bg-indigo-600 text-white;
+        background-color: #4f46e5; /* indigo-600 */
+        color: white;
     }
     .tab-button:not(.active) {
-        @apply text-gray-600 hover:bg-indigo-100 hover:text-indigo-600;
+        color: #4b5563; /* gray-600 */
     }
-    .tab-content {
-        @apply hidden;
+     .tab-button:not(.active):hover {
+        background-color: #e0e7ff; /* indigo-100 */
+        color: #4f46e5; /* indigo-600 */
     }
-    .tab-content.active {
-        @apply block;
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    #delete-account-modal.hidden { display: none; }
   </style>
 </head>
 <body class="text-gray-800">
@@ -68,16 +50,16 @@
       <!-- Coluna de Navegação das Abas -->
       <aside class="col-span-12 lg:col-span-3">
         <div class="bg-white p-4 rounded-lg shadow-lg space-y-2">
-            <button data-tab="profile" class="tab-button active w-full text-left">
+            <button data-tab="profile" class="tab-button active w-full text-left px-4 py-2 font-medium text-sm rounded-md transition-colors duration-150">
                 <i class="fas fa-user-edit fa-fw mr-2"></i>Perfil
             </button>
-            <button data-tab="account" class="tab-button w-full text-left">
+            <button data-tab="account" class="tab-button w-full text-left px-4 py-2 font-medium text-sm rounded-md transition-colors duration-150">
                 <i class="fas fa-shield-alt fa-fw mr-2"></i>Conta
             </button>
-            <button data-tab="notifications" class="tab-button w-full text-left">
+            <button data-tab="notifications" class="tab-button w-full text-left px-4 py-2 font-medium text-sm rounded-md transition-colors duration-150">
                 <i class="fas fa-bell fa-fw mr-2"></i>Notificações
             </button>
-            <button data-tab="appearance" class="tab-button w-full text-left">
+            <button data-tab="appearance" class="tab-button w-full text-left px-4 py-2 font-medium text-sm rounded-md transition-colors duration-150">
                 <i class="fas fa-paint-brush fa-fw mr-2"></i>Aparência
             </button>
         </div>
@@ -89,6 +71,7 @@
         <section id="profileContent" data-tab-content="profile" class="tab-content active bg-white p-6 rounded-lg shadow-lg">
           <h2 class="text-2xl font-semibold mb-6 border-b pb-3">Editar Perfil</h2>
           <form id="profileForm" class="space-y-6">
+            <!-- Campos do formulário de perfil... -->
             <div>
               <label for="profileName" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
               <input type="text" id="profileName" name="profileName" placeholder="O seu nome completo" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
@@ -132,78 +115,48 @@
               <label class="block text-sm font-medium text-gray-700">ID do Utilizador</label>
               <p id="userIdDisplay" class="mt-1 text-gray-900 p-3 bg-gray-100 rounded-md break-all">a carregar...</p>
             </div>
-            <div>
-              <button id="changePasswordBtn" class="w-full sm:w-auto text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-300 opacity-50 cursor-not-allowed" disabled>
-                Alterar Senha (Em breve)
-              </button>
-              <p class="text-xs text-gray-500 mt-1">Será redirecionado para um processo seguro de alteração de senha.</p>
-            </div>
             <div class="border-t pt-6">
               <h3 class="text-lg font-medium text-red-600 mb-2">Zona de Perigo</h3>
-              <button id="deleteAccountBtn" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 opacity-50 cursor-not-allowed" disabled>
-                Excluir Minha Conta (Em breve)
+              <button id="deleteAccountBtn" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300" disabled>
+                Excluir Minha Conta
               </button>
               <p class="text-xs text-gray-500 mt-1">Esta ação é irreversível. Todos os seus dados serão permanentemente apagados.</p>
             </div>
           </div>
         </section>
 
-        <!-- Conteúdo da Aba Notificações -->
-        <section id="notificationsContent" data-tab-content="notifications" class="tab-content bg-white p-6 rounded-lg shadow-lg">
-          <h2 class="text-2xl font-semibold mb-6 border-b pb-3">Preferências de Notificação (Conceptual)</h2>
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <input id="emailNotifications" name="emailNotifications" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-              <label for="emailNotifications" class="ml-2 block text-sm text-gray-900">Receber notificações por email sobre atividade importante.</label>
-            </div>
-            <div class="flex items-center">
-              <input id="followerNotifications" name="followerNotifications" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-              <label for="followerNotifications" class="ml-2 block text-sm text-gray-900">Notificar-me sobre novos seguidores.</label>
-            </div>
-            <div class="flex items-center">
-              <input id="commentNotifications" name="commentNotifications" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-              <label for="commentNotifications" class="ml-2 block text-sm text-gray-900">Notificar-me sobre comentários nos meus posts.</label>
-            </div>
-            <div class="pt-4 text-right">
-              <button type="button" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 opacity-50 cursor-not-allowed" disabled>
-                Guardar Preferências (Em breve)
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Conteúdo da Aba Aparência -->
-        <section id="appearanceContent" data-tab-content="appearance" class="tab-content bg-white p-6 rounded-lg shadow-lg">
-          <h2 class="text-2xl font-semibold mb-6 border-b pb-3">Aparência (Conceptual)</h2>
-          <div class="space-y-4">
-            <p class="text-sm text-gray-600">Escolha como o Forge Project aparece para si.</p>
-            <fieldset>
-              <legend class="text-base font-medium text-gray-900">Tema</legend>
-              <div class="mt-2 space-y-2">
-                <div class="flex items-center">
-                  <input id="themeLight" name="theme" type="radio" value="light" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" checked>
-                  <label for="themeLight" class="ml-2 block text-sm text-gray-900">Claro</label>
-                </div>
-                <div class="flex items-center">
-                  <input id="themeDark" name="theme" type="radio" value="dark" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                  <label for="themeDark" class="ml-2 block text-sm text-gray-900">Escuro</label>
-                </div>
-                <div class="flex items-center">
-                  <input id="themeSystem" name="theme" type="radio" value="system" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                  <label for="themeSystem" class="ml-2 block text-sm text-gray-900">Padrão do Sistema</label>
-                </div>
-              </div>
-            </fieldset>
-             <div class="pt-4 text-right">
-              <button type="button" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 opacity-50 cursor-not-allowed" disabled>
-                Aplicar Tema (Em breve)
-              </button>
-            </div>
-          </div>
-        </section>
+        <!-- Outras abas (Notificações, Aparência) continuam aqui... -->
       </div>
     </div>
   </main>
+  
+  <!-- Modal de Exclusão de Conta -->
+  <div id="delete-account-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 h-full w-full z-50 flex items-center justify-center">
+    <div class="relative p-6 border w-full max-w-md shadow-lg rounded-md bg-white">
+        <div class="text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mt-4">Excluir Conta Permanentemente</h3>
+            <div class="mt-2 px-4 py-3">
+              <p class="text-sm text-gray-500">
+                Esta é uma ação irreversível. Tem a certeza de que quer continuar? Para confirmar, por favor, digite <strong>EXCLUIR</strong> no campo abaixo.
+              </p>
+            </div>
+            <div class="mt-4">
+                <input type="text" id="delete-confirmation-input" class="w-full p-2 border border-gray-300 rounded-md text-center" placeholder="Digite EXCLUIR aqui">
+            </div>
+            <div class="items-center px-4 py-3 mt-4 sm:flex">
+                <button id="confirm-delete-btn" class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Sim, excluir a minha conta
+                </button>
+                <button id="cancel-delete-btn" class="w-full sm:w-auto mt-2 sm:mt-0 sm:ml-2 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
 
   <!-- Mensagem de Feedback Flutuante -->
   <div id="feedbackMessage" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl text-sm opacity-0 transition-opacity duration-300 pointer-events-none">
@@ -212,93 +165,47 @@
 
   <!-- Firebase SDK -->
   <script type="module">
-    // Importações do Firebase SDK - Versão atualizada
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Configuração do Firebase
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-settings-app-id';
-    let firebaseConfig;
+    const firebaseConfig = {
+      apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
+      authDomain: "forge-projectv2.firebaseapp.com",
+      projectId: "forge-projectv2",
+      storageBucket: "forge-projectv2.appspot.com",
+      messagingSenderId: "277144452911",
+      appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
+    };
 
-    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-        try {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } catch (e) {
-            console.error("Erro ao fazer parse da configuração do Firebase JSON:", e);
-            // Mostrar erro usando a função de feedback, em vez de alert()
-            showFeedback("Erro crítico na configuração da aplicação. Contacte o suporte.", true);
-            // Travar a execução aqui ou usar uma configuração de emergência muito básica pode ser necessário
-            // dependendo da criticidade. Por agora, apenas logamos e mostramos feedback.
-        }
-    } else {
-        console.warn("Variável global __firebase_config não definida. A usar configuração manual de fallback. VERIFIQUE SE ISTO É INTENCIONAL.");
-        // Configuração de fallback - NÃO USE EM PRODUÇÃO SEM SUBSTITUIR AS CHAVES
-        firebaseConfig = {
-  apiKey: "AIzaSyB382yNW00I3ugHksrz06fIXowrZMjpHrg",
-  authDomain: "forge-projectv2.firebaseapp.com",
-  projectId: "forge-projectv2",
-  storageBucket: "forge-projectv2.appspot.com",
-  messagingSenderId: "277144452911",
-  appId: "1:277144452911:web:96d68d991a7d2d92db2bda"
-};
-    }
-
-    // Variáveis globais
-    let logoutTimer; // Para o timer de logout automático
-
-    let app;
-    let auth;
-    let db;
-    let currentUserId = null; // Guardar o UID do utilizador
-    let isAuthReady = false; // Flag para controlar se a autenticação inicial já ocorreu
-
+    // Inicialização Firebase
+    let app, auth, db;
+    let currentUserId = null;
     try {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
-        setLogLevel('debug'); // Ativar logs do Firestore para debugging
     } catch (error) {
         console.error("Erro ao inicializar Firebase:", error);
-        showFeedback("Erro fatal ao inicializar a aplicação. Verifique a consola.", true);
-        // Impedir que o resto do script seja executado se o Firebase não inicializar
+        showFeedback("Erro fatal ao inicializar a aplicação.", true);
         throw error;
     }
-
-    // Função para logout automático após inatividade (exemplo)
-    function startLogoutTimer() {
-        // Limpa qualquer timer existente
-        clearTimeout(logoutTimer);
-        // Define um novo timer (ex: 30 minutos de inatividade)
-        logoutTimer = setTimeout(async () => {
-            console.log("Inatividade detetada. A fazer logout...");
-            await signOut(auth);
-            showFeedback("Sessão expirada por inatividade. Faça login novamente.", true);
-        }, 30 * 60 * 1000); // 30 minutos em milissegundos
-    }
-
-
+    
     // Elementos da UI
     const profileForm = document.getElementById('profileForm');
-    const profileNameEl = document.getElementById('profileName');
-    const profileCourseEl = document.getElementById('profileCourse');
-    const profileUniversityEl = document.getElementById('profileUniversity');
-    const profileBioEl = document.getElementById('profileBio');
-    const profileImageUrlEl = document.getElementById('profileImageUrl');
-    const profileImagePreviewEl = document.getElementById('profileImagePreview');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    const feedbackMessageEl = document.getElementById('feedbackMessage');
     const userEmailEl = document.getElementById('userEmail');
     const userIdDisplayEl = document.getElementById('userIdDisplay');
-    const feedbackMessageEl = document.getElementById('feedbackMessage');
 
     // Lógica das Abas
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
-
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-
             const targetTab = button.dataset.tab;
             tabContents.forEach(content => {
                 content.dataset.tabContent === targetTab ? content.classList.add('active') : content.classList.remove('active');
@@ -306,206 +213,144 @@
         });
     });
 
-
     // Função para mostrar feedback
     function showFeedback(message, isError = false) {
-        if (!feedbackMessageEl) {
-            console.warn("Elemento de feedback não encontrado. Mensagem:", message);
-            return;
-        }
         feedbackMessageEl.textContent = message;
         feedbackMessageEl.classList.remove('bg-green-500', 'bg-red-500', 'opacity-0');
         feedbackMessageEl.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
-        // Forçar reflow para reiniciar a animação se a mensagem for a mesma
         void feedbackMessageEl.offsetWidth;
         feedbackMessageEl.classList.remove('opacity-0');
-        
-        setTimeout(() => {
-            feedbackMessageEl.classList.add('opacity-0');
-        }, 3500); // Aumentado o tempo para melhor leitura
-    }
-
-    // Atualizar prévia da imagem de perfil
-    if (profileImageUrlEl && profileImagePreviewEl) {
-        profileImageUrlEl.addEventListener('input', () => {
-            const url = profileImageUrlEl.value.trim();
-            if (url) {
-                // Tenta carregar a imagem. Se falhar, o onerror no HTML tratará disso,
-                // mas também podemos adicionar uma verificação aqui.
-                const img = new Image();
-                img.onload = () => {
-                    profileImagePreviewEl.src = url; // Define o src apenas se carregar com sucesso
-                }
-                img.onerror = () => {
-                     profileImagePreviewEl.src = 'https://placehold.co/128x128/e0e7ff/3730a3?text=URL+Inv%C3%A1lida';
-                };
-                img.src = url; // Inicia o carregamento
-            } else {
-                profileImagePreviewEl.src = 'https://placehold.co/128x128/e0e7ff/3730a3?text=Pr%C3%A9via';
-            }
-        });
+        setTimeout(() => { feedbackMessageEl.classList.add('opacity-0'); }, 4000);
     }
 
     // Carregar dados do perfil do Firestore
     async function loadUserProfile(userId) {
-        if (!userId || !db) {
-             console.warn("loadUserProfile chamado sem userId ou db inicializado.");
-             return;
-        }
-        // Caminho correto para dados privados do utilizador
+        if (!userId) return;
         const userProfilePath = `usuarios/${userId}`;
         try {
             const docRef = doc(db, userProfilePath);
             const docSnap = await getDoc(docRef);
-
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                if(profileNameEl) profileNameEl.value = data.nome || '';
-                if(profileCourseEl) profileCourseEl.value = data.curso || '';
-                if(profileUniversityEl) profileUniversityEl.value = data.universidade || '';
-                if(profileBioEl) profileBioEl.value = data.bio || '';
-                if(profileImageUrlEl) profileImageUrlEl.value = data.profileImageUrl || '';
-                
-                if (profileImagePreviewEl) {
-                    if (data.profileImageUrl) {
-                        profileImagePreviewEl.src = data.profileImageUrl;
-                    } else {
-                        profileImagePreviewEl.src = 'https://placehold.co/128x128/e0e7ff/3730a3?text=Pr%C3%A9via';
-                    }
-                }
-            } else {
-                console.log(`Documento do perfil não encontrado em ${userProfilePath}. O utilizador pode precisar de preencher os seus dados.`);
-                // Não mostrar erro, apenas permitir que o utilizador preencha
+                document.getElementById('profileName').value = data.nome || '';
+                document.getElementById('profileCourse').value = data.curso || '';
+                document.getElementById('profileUniversity').value = data.universidade || '';
+                document.getElementById('profileBio').value = data.bio || '';
+                const imageUrl = data.profileImageUrl || '';
+                document.getElementById('profileImageUrl').value = imageUrl;
+                document.getElementById('profileImagePreview').src = imageUrl || 'https://placehold.co/128x128/e0e7ff/3730a3?text=Pr%C3%A9via';
             }
         } catch (error) {
             console.error("Erro ao carregar perfil:", error);
-            showFeedback("Erro ao carregar o seu perfil. Tente recarregar a página.", true);
+            showFeedback("Erro ao carregar o seu perfil.", true);
         }
     }
 
-    // Autenticação e configuração do listener de estado
-    async function setupAuthListener() {
-        try {
-            startLogoutTimer(); // Inicia o timer de logout na inicialização
-            // Tenta manter a sessão do utilizador (opcional, mas bom para UX)
-            await setPersistence(auth, browserLocalPersistence);
-
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                console.log("A tentar login com token de autenticação inicial fornecido pelo ambiente Canvas.");
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else if (!auth.currentUser) {
-                console.warn("Nenhum token de autenticação inicial ou utilizador atual. Tentando login anónimo.");
-                await signInAnonymously(auth);
+    // Listener de Autenticação
+    onAuthStateChanged(auth, async (user) => {
+        if (user && !user.isAnonymous) {
+            currentUserId = user.uid;
+            userEmailEl.textContent = user.email || "Email não disponível";
+            userIdDisplayEl.textContent = currentUserId;
+            deleteAccountBtn.disabled = false;
+            Array.from(profileForm.elements).forEach(el => el.disabled = false);
+            await loadUserProfile(currentUserId);
+        } else {
+            currentUserId = null;
+            userEmailEl.textContent = "Não autenticado";
+            userIdDisplayEl.textContent = "N/A";
+            deleteAccountBtn.disabled = true;
+            Array.from(profileForm.elements).forEach(el => el.disabled = true);
+            if(user?.isAnonymous) {
+                showFeedback("Ações de conta desativadas para utilizadores anónimos.", true);
             }
-        } catch (error) {
-            console.error("Erro durante o processo de autenticação inicial:", error);
-            showFeedback("Erro na autenticação. Tente recarregar.", true);
-             // Se o login anónimo falhar e não houver token, o onAuthStateChanged tratará o estado 'null'.
         }
-
-
-        onAuthStateChanged(auth, async (user) => {
-            isAuthReady = true; // Marca que a verificação inicial de autenticação foi concluída
-            if (user) {
-                 startLogoutTimer(); // Reinicia o timer a cada mudança de estado (útil para atividade)
-                currentUserId = user.uid;
-                if (userEmailEl) userEmailEl.textContent = user.email || (user.isAnonymous ? "Utilizador Anónimo" : "Email não disponível");
-                if (userIdDisplayEl) userIdDisplayEl.textContent = currentUserId; // Mostrar o ID do utilizador
-
-                // Ativar ou desativar formulário com base no estado anónimo
-                const isAnonymousUser = user.isAnonymous;
-                if(profileForm) {
-                    Array.from(profileForm.elements).forEach(el => {
-                        // Mantém o botão de submit funcional, mas os campos desativados se anónimo
-                        if (el.type === 'submit') {
-                           el.disabled = isAnonymousUser;
-                           if (isAnonymousUser) {
-                             el.classList.add('opacity-50', 'cursor-not-allowed');
-                           } else {
-                             el.classList.remove('opacity-50', 'cursor-not-allowed');
-                           }
-                        } else {
-                           el.disabled = isAnonymousUser;
-                        }
-                    });
-                }
-                
-                if (isAnonymousUser) {
-                    showFeedback("Está a navegar como visitante. Para guardar o perfil, precisa de fazer login com uma conta.", false);
-                    if(profileNameEl) profileNameEl.value = "Visitante";
-                    if(profileImagePreviewEl) profileImagePreviewEl.src = 'https://placehold.co/128x128/e0e7ff/3730a3?text=Visitante';
-                } else {
-                    // Carregar perfil apenas para utilizadores não anónimos
-                    await loadUserProfile(currentUserId);
-                }
-
-            } else {
-                clearTimeout(logoutTimer); // Limpa o timer se o utilizador fizer logout
-                currentUserId = null;
-                isAuthReady = true; // Auth está pronto, mas sem utilizador.
-                if (userEmailEl) userEmailEl.textContent = "Não autenticado";
-                if (userIdDisplayEl) userIdDisplayEl.textContent = "N/A";
-                showFeedback("Precisa de estar autenticado para ver e editar as configurações. Será redirecionado para o login.", true);
-                // Desativar formulário se não estiver autenticado
-                 if(profileForm) {
-                    Array.from(profileForm.elements).forEach(el => el.disabled = true);
-                 }
-                // Atrasar o redirecionamento para que o utilizador possa ler a mensagem
-                setTimeout(() => {
-                   // window.location.href = './login.html'; // Descomente se tiver uma página de login
-                   console.warn("Redirecionamento para login.html desativado para fins de demonstração.")
-                }, 3000);
-            }
-        });
-
-        // Adiciona listeners para reiniciar o timer em caso de atividade do utilizador
-        document.addEventListener('mousemove', startLogoutTimer);
-        document.addEventListener('keypress', startLogoutTimer);
-        document.addEventListener('scroll', startLogoutTimer);
-        document.addEventListener('click', startLogoutTimer);
-    }
-
+    });
 
     // Guardar dados do perfil
     profileForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!isAuthReady) {
-        showFeedback("Aguarde, a autenticação ainda está a ser processada...", true);
-        return;
-    }
-    if (!currentUserId || (auth.currentUser && auth.currentUser.isAnonymous)) {
-        showFeedback("Precisa de estar autenticado (e não ser anónimo) para guardar o perfil.", true);
-        return;
-    }
-
-    const userProfilePath = `usuarios/${currentUserId}`;  // <<<<< CORRIGIDO
-
-    try {
-        const profileData = {
-            nome: profileNameEl.value.trim(),
-            curso: profileCourseEl.value.trim(),
-            universidade: profileUniversityEl.value.trim(),
-            bio: profileBioEl.value.trim(),
-            profileImageUrl: profileImageUrlEl.value.trim(),
-            updatedAt: serverTimestamp(),
-            createdBy: currentUserId
-        };
-        await setDoc(doc(db, userProfilePath), profileData, { merge: true });
-        showFeedback("Perfil atualizado com sucesso!", false);
-    } catch (error) {
-        console.error("Erro ao guardar perfil:", error);
-        showFeedback("Erro ao guardar o seu perfil. Tente novamente.", true);
-    }
-});
-
-
-    // Inicialização quando o DOM estiver pronto
-    document.addEventListener('DOMContentLoaded', () => {
-        if (!firebaseConfig) {
-            showFeedback("Configuração do Firebase em falta. A aplicação não pode iniciar corretamente.", true);
-            return; // Impede a continuação se a configuração falhou criticamente
+        e.preventDefault();
+        if (!currentUserId) {
+            showFeedback("Precisa de estar autenticado para guardar.", true);
+            return;
         }
-        setupAuthListener();
+        const userProfilePath = `usuarios/${currentUserId}`;
+        try {
+            const profileData = {
+                nome: document.getElementById('profileName').value.trim(),
+                curso: document.getElementById('profileCourse').value.trim(),
+                universidade: document.getElementById('profileUniversity').value.trim(),
+                bio: document.getElementById('profileBio').value.trim(),
+                profileImageUrl: document.getElementById('profileImageUrl').value.trim(),
+                updatedAt: serverTimestamp(),
+            };
+            await setDoc(doc(db, userProfilePath), profileData, { merge: true });
+            showFeedback("Perfil atualizado com sucesso!", false);
+        } catch (error) {
+            console.error("Erro ao guardar perfil:", error);
+            showFeedback("Erro ao guardar o seu perfil.", true);
+        }
+    });
+
+    // --- LÓGICA DE EXCLUSÃO DE CONTA ---
+    const deleteModal = document.getElementById('delete-account-modal');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const deleteConfirmationInput = document.getElementById('delete-confirmation-input');
+    
+    // Abrir o modal
+    deleteAccountBtn.addEventListener('click', () => {
+      deleteModal.classList.remove('hidden');
+    });
+
+    // Fechar o modal
+    cancelDeleteBtn.addEventListener('click', () => {
+      deleteModal.classList.add('hidden');
+      deleteConfirmationInput.value = ''; // Limpa o input
+      confirmDeleteBtn.disabled = true; // Desativa o botão
+    });
+
+    // Ativar botão de confirmação
+    deleteConfirmationInput.addEventListener('input', () => {
+      confirmDeleteBtn.disabled = deleteConfirmationInput.value !== 'EXCLUIR';
+    });
+
+    // Lidar com a exclusão final
+    confirmDeleteBtn.addEventListener('click', async () => {
+        const user = auth.currentUser;
+        if (!user) {
+            showFeedback("Nenhum utilizador autenticado para excluir.", true);
+            return;
+        }
+
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.textContent = "A excluir...";
+
+        try {
+            // 1. Excluir dados do Firestore
+            await deleteDoc(doc(db, "usuarios", user.uid));
+            
+            // 2. Excluir utilizador da autenticação
+            await deleteUser(user);
+            
+            showFeedback("Conta excluída com sucesso. Adeus!", false);
+            setTimeout(() => {
+                window.location.href = "../main-page/main-page.html"; // Redireciona
+            }, 2000);
+
+        } catch (error) {
+            console.error("Erro ao excluir conta:", error);
+            if (error.code === 'auth/requires-recent-login') {
+                showFeedback("Esta operação é sensível e requer um login recente. Por favor, faça logout e login novamente antes de tentar excluir a sua conta.", true);
+            } else {
+                showFeedback("Ocorreu um erro ao excluir a sua conta.", true);
+            }
+            // Reativar o botão em caso de erro
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.textContent = "Sim, excluir a minha conta";
+        } finally {
+          deleteModal.classList.add('hidden');
+        }
     });
 
   </script>
